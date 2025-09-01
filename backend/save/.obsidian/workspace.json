@@ -1,0 +1,182 @@
+{
+  "main": {
+    "id": "0d891ccc85f177cb",
+    "type": "split",
+    "children": [
+      {
+        "id": "a4b21892cf67c05f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cd79e8d30307934d",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "DevGuide.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "DevGuide"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "cdc3df0add616b18",
+    "type": "split",
+    "children": [
+      {
+        "id": "c8d3d26f786883ce",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "24467fb67e3615b5",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "파일 탐색기"
+            }
+          },
+          {
+            "id": "7cb21474e01bae7c",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "검색"
+            }
+          },
+          {
+            "id": "7d5dbabc0bd50438",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "북마크"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "a66efae9c10e0d9f",
+    "type": "split",
+    "children": [
+      {
+        "id": "088757594a78ed95",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "25e632d3f9079b80",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "DevGuide.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "DevGuide 의 백링크"
+            }
+          },
+          {
+            "id": "8f5b23eac8da5a53",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "DevGuide.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "DevGuide 의 나가는 링크"
+            }
+          },
+          {
+            "id": "be127330ef9ec8fa",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "태그"
+            }
+          },
+          {
+            "id": "b9a1df9cab569a7d",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "DevGuide.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "DevGuide 의 개요"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:빠른 전환기 열기": false,
+      "graph:그래프 뷰 열기": false,
+      "canvas:새 캔버스 만들기": false,
+      "daily-notes:오늘의 일일 노트 열기": false,
+      "templates:템플릿 삽입": false,
+      "command-palette:명령어 팔레트 열기": false,
+      "bases:새 베이스 생성하기": false
+    }
+  },
+  "active": "cd79e8d30307934d",
+  "lastOpenFiles": [
+    "build/classes/java/main/stop/save/SaveApplication.class",
+    "build/tmp/compileJava/compileTransaction/stash-dir/SaveApplication.class.uniqueId0",
+    "build/tmp/compileJava/compileTransaction/stash-dir",
+    "build/tmp/compileJava/compileTransaction/backup-dir",
+    "build/tmp/compileJava/compileTransaction",
+    "src/main/java/stop/save/SaveApplication.java~",
+    "DevGuide.md"
+  ]
+}
