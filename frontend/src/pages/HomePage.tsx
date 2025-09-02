@@ -1,17 +1,37 @@
 import { Link } from "react-router-dom";
-import { useSavingsStore } from "../store/useSavingsStore";
+import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useSavingRecordStore } from "../store/useSavingRecordStore";
 
 export default function HomePage() {
-  const { balance, level, experience, records } = useSavingsStore();
   const { user } = useAuthStore();
+  const {
+    records,
+    todayRecords,
+    totalAmount,
+    fetchUserRecords,
+    fetchTodayRecords,
+    fetchTotalAmount,
+  } = useSavingRecordStore();
 
-  // 오늘 절약한 금액 계산
-  const today = new Date().toDateString();
-  const todaySavings = records
-    .filter((record) => new Date(record.createdAt).toDateString() === today)
-    .reduce((sum, record) => sum + record.amount, 0);
+  // 사용자 데이터 로드
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserRecords(user.id);
+      fetchTodayRecords(user.id);
+      fetchTotalAmount(user.id);
+    }
+  }, [user?.id, fetchUserRecords, fetchTodayRecords, fetchTotalAmount]);
 
+  // 오늘 절약한 금액 계산 (백엔드 데이터 사용)
+  const todaySavings = todayRecords.reduce(
+    (sum, record) => sum + record.amount,
+    0
+  );
+
+  // 사용자 레벨과 경험치 (백엔드 데이터 사용)
+  const level = user?.level || 1;
+  const experience = user?.experience || 0;
   const nextLevelXP = Math.max(0, level * 100 - experience);
   const progressPercent = (experience / (level * 100)) * 100;
 
@@ -24,7 +44,7 @@ export default function HomePage() {
             {user?.nickname || user?.username || "사용자"} 님의 절약
           </p>
           <div className="text-3xl font-bold text-gray-900 mb-1">
-            {balance.toLocaleString()}원
+            {totalAmount.toLocaleString()}원
           </div>
           <p className="text-xs text-gray-500">해지일 | 2025.12.31</p>
         </div>
@@ -57,7 +77,7 @@ export default function HomePage() {
         />
         <StatCard
           title="이번 달"
-          value={`${balance.toLocaleString()}원`}
+          value={`${totalAmount.toLocaleString()}원`}
           icon="📈"
           trend={`${records.length}회 절약`}
         />
@@ -105,7 +125,7 @@ export default function HomePage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900">
-                      {record.memo || record.category}
+                      {record.memo || record.itemName}
                     </p>
                     <p className="text-xs text-gray-500">
                       {new Date(record.createdAt).toLocaleDateString()}

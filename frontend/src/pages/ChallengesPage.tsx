@@ -1,81 +1,60 @@
-import { useState } from "react";
-import { useSavingsStore } from "../store/useSavingsStore";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useSavingRecordStore } from "../store/useSavingRecordStore";
+import { getCompletedChallengeIds } from "../utils/challengeStorage";
+import {
+  checkAndCompleteAutoChallenges,
+  CHALLENGES,
+} from "../utils/challengeAutoComplete";
 
-const DAILY_CHALLENGES = [
-  {
-    id: "coffee",
-    title: "커피 한 잔 참기",
-    reward: 5000,
-    icon: "☕",
-    description: "오늘 하루 커피를 마시지 않기",
-  },
-  {
-    id: "snack",
-    title: "간식 참기",
-    reward: 3000,
-    icon: "🍿",
-    description: "편의점 간식 구매하지 않기",
-  },
-  {
-    id: "taxi",
-    title: "택시 대신 대중교통",
-    reward: 8000,
-    icon: "🚕",
-    description: "택시 대신 지하철/버스 이용하기",
-  },
-];
-
-const WEEKLY_CHALLENGES = [
-  {
-    id: "delivery",
-    title: "배달음식 0회",
-    reward: 30000,
-    icon: "🍕",
-    description: "이번 주 배달음식 주문하지 않기",
-  },
-  {
-    id: "shopping",
-    title: "충동구매 참기",
-    reward: 25000,
-    icon: "🛍️",
-    description: "계획에 없던 쇼핑 참기",
-  },
-];
-
-const MONTHLY_CHALLENGES = [
-  {
-    id: "target",
-    title: "10만원 절약하기",
-    reward: 100000,
-    icon: "🎯",
-    description: "한 달간 10만원 이상 절약하기",
-  },
-  {
-    id: "streak",
-    title: "30일 연속 절약",
-    reward: 50000,
-    icon: "🔥",
-    description: "30일 연속으로 절약 기록하기",
-  },
-];
+// 챌린지를 기간별로 분류
+const DAILY_CHALLENGES = CHALLENGES.filter((c) => c.period === "daily");
+const WEEKLY_CHALLENGES = CHALLENGES.filter((c) => c.period === "weekly");
+const MONTHLY_CHALLENGES = CHALLENGES.filter((c) => c.period === "monthly");
 
 export default function ChallengesPage() {
-  const { records, balance } = useSavingsStore();
-  const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
   const { user } = useAuthStore();
+  const { todayRecords, records, fetchTodayRecords, fetchUserRecords } =
+    useSavingRecordStore();
+  const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
 
-  const completeChallenge = (challengeId: string) => {
-    if (!completedChallenges.includes(challengeId)) {
-      setCompletedChallenges([...completedChallenges, challengeId]);
+  // 사용자 데이터 로드
+  useEffect(() => {
+    if (user?.id) {
+      fetchTodayRecords(user.id);
+      fetchUserRecords(user.id);
     }
-  };
+  }, [user?.id, fetchTodayRecords, fetchUserRecords]);
 
-  // 오늘 기록 확인
-  const today = new Date().toDateString();
-  const todayRecords = records.filter(
-    (record) => new Date(record.createdAt).toDateString() === today
-  );
+  // 완료된 챌린지 로드 및 자동 완료 확인
+  useEffect(() => {
+    if (user?.id && records.length > 0) {
+      // 로컬스토리지에서 완료된 챌린지 로드
+      const storedCompletions = getCompletedChallengeIds(user.id);
+      setCompletedChallenges(storedCompletions);
+
+      // 자동 챌린지 완료 확인
+      checkAndCompleteAutoChallenges(
+        records,
+        user.id,
+        (challengeId, challenge) => {
+          // 새로 완료된 챌린지 알림
+          if (!storedCompletions.includes(challengeId)) {
+            // 완료 알림 (선택사항)
+            console.log(
+              `🎉 챌린지 완료: ${challenge.title} (+${challenge.reward}원)`
+            );
+          }
+        }
+      ).then((newCompletions) => {
+        if (newCompletions.length > 0) {
+          // 새로 완료된 챌린지가 있으면 상태 업데이트
+          const updatedCompletions = getCompletedChallengeIds(user.id);
+          setCompletedChallenges(updatedCompletions);
+        }
+      });
+    }
+  }, [user?.id, records]);
 
   return (
     <div className="space-y-6 pt-6">
@@ -118,7 +97,6 @@ export default function ChallengesPage() {
                 key={challenge.id}
                 challenge={challenge}
                 isCompleted={isCompleted}
-                onComplete={() => completeChallenge(challenge.id)}
                 period="일일"
               />
             );
@@ -137,7 +115,6 @@ export default function ChallengesPage() {
                 key={challenge.id}
                 challenge={challenge}
                 isCompleted={isCompleted}
-                onComplete={() => completeChallenge(challenge.id)}
                 period="주간"
               />
             );
@@ -150,16 +127,12 @@ export default function ChallengesPage() {
         <h3 className="font-semibold text-gray-900 mb-4">월간 챌린지</h3>
         <div className="space-y-3">
           {MONTHLY_CHALLENGES.map((challenge) => {
-            const isCompleted =
-              challenge.id === "target"
-                ? balance >= 100000
-                : completedChallenges.includes(challenge.id);
+            const isCompleted = completedChallenges.includes(challenge.id);
             return (
               <ChallengeCard
                 key={challenge.id}
                 challenge={challenge}
                 isCompleted={isCompleted}
-                onComplete={() => completeChallenge(challenge.id)}
                 period="월간"
               />
             );
@@ -173,12 +146,10 @@ export default function ChallengesPage() {
 function ChallengeCard({
   challenge,
   isCompleted,
-  onComplete,
   period,
 }: {
   challenge: any;
   isCompleted: boolean;
-  onComplete: () => void;
   period: string;
 }) {
   return (
@@ -209,13 +180,15 @@ function ChallengeCard({
             <span className="text-sm font-semibold text-brand-600">
               +{challenge.reward.toLocaleString()}원
             </span>
+            {isCompleted && (
+              <span className="text-xs px-3 py-1 bg-green-100 text-green-700 rounded-lg font-medium">
+                완료됨 ✓
+              </span>
+            )}
             {!isCompleted && (
-              <button
-                onClick={onComplete}
-                className="text-xs px-3 py-1 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors"
-              >
-                완료하기
-              </button>
+              <span className="text-xs px-3 py-1 bg-gray-100 text-gray-600 rounded-lg">
+                자동 완료 대기중
+              </span>
             )}
           </div>
         </div>

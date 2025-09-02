@@ -171,17 +171,17 @@
   },
   "active": "cd79e8d30307934d",
   "lastOpenFiles": [
+    "src/main/java/stop/save/controller/ChallengeCompletionController.java",
+    "src/main/java/stop/save/service/ChallengeCompletionService.java",
+    "src/main/java/stop/save/repository/ChallengeCompletionRepository.java",
+    "src/main/java/stop/save/entity/ChallengeCompletion.java",
+    "build/tmp/compileJava/compileTransaction/stash-dir/UserController$SavingsRequest.class.uniqueId5",
+    "build/tmp/compileJava/compileTransaction/stash-dir/SavingRecordService.class.uniqueId4",
+    "build/tmp/compileJava/compileTransaction/stash-dir/UserService.class.uniqueId3",
+    "build/tmp/compileJava/compileTransaction/stash-dir/UserController$ExperienceRequest.class.uniqueId0",
     "build/classes/java/main/stop/save/controller/UserController.class",
     "build/classes/java/main/stop/save/controller/UserController$LoginRequest.class",
     "build/classes/java/main/stop/save/repository/UserRepository.class",
-    "build/classes/java/main/stop/save/service/UserService.class",
-    "build/classes/java/main/stop/save/repository/SavingRecordRepository.class",
-    "build/classes/java/main/stop/save/entity/User$LoginType.class",
-    "build/classes/java/main/stop/save/entity/User$Role.class",
-    "build/tmp/compileJava/compileTransaction/stash-dir/UserRepository.class.uniqueId6",
-    "build/tmp/compileJava/compileTransaction/stash-dir/User$LoginType.class.uniqueId5",
-    "build/tmp/compileJava/compileTransaction/stash-dir/UserService.class.uniqueId4",
-    "build/tmp/compileJava/compileTransaction/stash-dir/User$Role.class.uniqueId3",
     "DevGuide.md"
   ]
 }

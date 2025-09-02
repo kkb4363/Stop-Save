@@ -32,6 +32,8 @@ public class User {
 
     private Long totalSavings = 0L;
 
+    private Long monthlyTarget = 100000L; // 기본 월간 목표: 10만원
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 
@@ -83,6 +85,9 @@ public class User {
 
     public Long getTotalSavings() { return totalSavings; }
     public void setTotalSavings(Long totalSavings) { this.totalSavings = totalSavings; }
+
+    public Long getMonthlyTarget() { return monthlyTarget; }
+    public void setMonthlyTarget(Long monthlyTarget) { this.monthlyTarget = monthlyTarget; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }

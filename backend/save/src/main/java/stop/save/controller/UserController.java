@@ -206,6 +206,7 @@ public class UserController {
         response.put("level", user.getLevel());
         response.put("experience", user.getExperience());
         response.put("totalSavings", user.getTotalSavings());
+        response.put("monthlyTarget", user.getMonthlyTarget());
         response.put("picture", user.getPicture());
         response.put("loginType", user.getLoginType());
         response.put("role", user.getRole());
@@ -237,5 +238,70 @@ public class UserController {
 
         public Long getAmount() { return amount; }
         public void setAmount(Long amount) { this.amount = amount; }
+    }
+
+    // 월간 목표 설정 API
+    @PutMapping("/{userId}/monthly-target")
+    public ResponseEntity<?> updateMonthlyTarget(@PathVariable Long userId, @RequestBody MonthlyTargetRequest request, HttpServletRequest httpRequest) {
+        try {
+            // 인증 확인
+            HttpSession session = httpRequest.getSession(false);
+            if (session == null || session.getAttribute("user") == null) {
+                return ResponseEntity.status(401).body(Map.of("error", "인증이 필요합니다."));
+            }
+
+            User currentUser = (User) session.getAttribute("user");
+            if (!currentUser.getId().equals(userId)) {
+                return ResponseEntity.status(403).body(Map.of("error", "권한이 없습니다."));
+            }
+
+            User updatedUser = userService.updateMonthlyTarget(userId, request.getMonthlyTarget());
+            
+            // 세션 정보도 업데이트
+            session.setAttribute("user", updatedUser);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("monthlyTarget", updatedUser.getMonthlyTarget());
+            response.put("message", "월간 목표 금액이 설정되었습니다.");
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // 월간 목표 조회 API
+    @GetMapping("/{userId}/monthly-target")
+    public ResponseEntity<?> getMonthlyTarget(@PathVariable Long userId, HttpServletRequest httpRequest) {
+        try {
+            // 인증 확인
+            HttpSession session = httpRequest.getSession(false);
+            if (session == null || session.getAttribute("user") == null) {
+                return ResponseEntity.status(401).body(Map.of("error", "인증이 필요합니다."));
+            }
+
+            User currentUser = (User) session.getAttribute("user");
+            if (!currentUser.getId().equals(userId)) {
+                return ResponseEntity.status(403).body(Map.of("error", "권한이 없습니다."));
+            }
+
+            Long monthlyTarget = userService.getMonthlyTarget(userId);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("monthlyTarget", monthlyTarget);
+
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // 월간 목표 요청 DTO
+    public static class MonthlyTargetRequest {
+        private Long monthlyTarget;
+
+        public Long getMonthlyTarget() { return monthlyTarget; }
+        public void setMonthlyTarget(Long monthlyTarget) { this.monthlyTarget = monthlyTarget; }
     }
 }

@@ -1,29 +1,41 @@
-import { useSavingsStore } from "../store/useSavingsStore";
+import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
+import { useSavingRecordStore } from "../store/useSavingRecordStore";
 
 export default function StatsPage() {
-  const { records, balance, level } = useSavingsStore();
   const { user } = useAuthStore();
+  const {
+    records,
+    totalAmount,
+    categoryStats,
+    fetchUserRecords,
+    fetchTotalAmount,
+    fetchCategoryStats,
+  } = useSavingRecordStore();
 
-  // 카테고리별 통계 계산
-  const categoryStats = records.reduce((acc, record) => {
-    acc[record.category] = (acc[record.category] || 0) + record.amount;
-    return acc;
-  }, {} as Record<string, number>);
+  // 사용자 데이터 로드
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserRecords(user.id);
+      fetchTotalAmount(user.id);
+      fetchCategoryStats(user.id);
+    }
+  }, [user?.id, fetchUserRecords, fetchTotalAmount, fetchCategoryStats]);
 
-  const categoryData = Object.entries(categoryStats)
-    .map(([category, amount]) => ({
-      category,
-      amount,
-      percentage: records.length > 0 ? (amount / balance) * 100 : 0,
+  // 카테고리별 통계 데이터 가공 (백엔드 데이터 사용)
+  const categoryData = categoryStats
+    .map((stat) => ({
+      category: stat.category,
+      amount: stat.amount,
+      percentage: totalAmount > 0 ? (stat.amount / totalAmount) * 100 : 0,
       icon:
-        category === "음식"
+        stat.category === "음식"
           ? "🍔"
-          : category === "교통"
+          : stat.category === "교통"
           ? "🚗"
-          : category === "쇼핑"
+          : stat.category === "쇼핑"
           ? "🛍️"
-          : category === "엔터테인먼트"
+          : stat.category === "엔터테인먼트"
           ? "🎬"
           : "💡",
     }))
@@ -64,7 +76,7 @@ export default function StatsPage() {
         <div className="card p-4 text-center">
           <div className="text-2xl mb-2">💰</div>
           <div className="text-lg font-bold text-gray-900">
-            {balance.toLocaleString()}원
+            {totalAmount.toLocaleString()}원
           </div>
           <div className="text-xs text-gray-500">총 절약 금액</div>
         </div>
@@ -146,16 +158,16 @@ export default function StatsPage() {
         <div className="text-center">
           <div className="text-4xl mb-2">🏆</div>
           <div className="text-2xl font-bold text-brand-600 mb-1">
-            Level {level}
+            Level {user?.level || 1}
           </div>
           <p className="text-sm text-gray-600">
-            {level === 1
+            {(user?.level || 1) === 1
               ? "절약 초보"
-              : level <= 3
+              : (user?.level || 1) <= 3
               ? "절약 도전자"
-              : level <= 5
+              : (user?.level || 1) <= 5
               ? "절약 전문가"
-              : level <= 10
+              : (user?.level || 1) <= 10
               ? "절약 마스터"
               : "절약 전설"}
           </p>

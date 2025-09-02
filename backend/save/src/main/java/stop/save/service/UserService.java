@@ -120,4 +120,29 @@ public class UserService {
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
+
+    // 세션에서 현재 사용자 가져오기
+    public User getCurrentUser(jakarta.servlet.http.HttpSession session) {
+        return (User) session.getAttribute("user");
+    }
+
+    // 월간 목표 금액 설정
+    public User updateMonthlyTarget(Long userId, Long monthlyTarget) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            user.setMonthlyTarget(monthlyTarget);
+            return userRepository.save(user);
+        }
+        throw new RuntimeException("사용자를 찾을 수 없습니다.");
+    }
+
+    // 월간 목표 금액 조회
+    public Long getMonthlyTarget(Long userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            return userOpt.get().getMonthlyTarget();
+        }
+        throw new RuntimeException("사용자를 찾을 수 없습니다.");
+    }
 }

@@ -1,18 +1,112 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSavingsStore } from "../store/useSavingsStore";
 import { useAuthStore } from "../store/useAuthStore";
+import { useSavingRecordStore } from "../store/useSavingRecordStore";
+import {
+  exportToExcel,
+  exportRecordsByPeriod,
+  exportRecordsByCategory,
+} from "../utils/excelExport";
+import { BUILD_INFO } from "../constants/buildInfo";
+import { userService } from "../services/userService";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const { balance, records } = useSavingsStore();
-  const [monthlyTarget, setMonthlyTarget] = useState(100000);
+  const { records, totalAmount, fetchUserRecords, fetchTotalAmount } =
+    useSavingRecordStore();
+  const [monthlyTarget, setMonthlyTarget] = useState(
+    user?.monthlyTarget || 100000
+  );
   const [notifications, setNotifications] = useState({
     daily: true,
     weekly: true,
     challenges: true,
   });
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  // 사용자 데이터 로드
+  useEffect(() => {
+    if (user?.id) {
+      fetchUserRecords(user.id);
+      fetchTotalAmount(user.id);
+      // 사용자 정보에서 월간 목표 설정
+      setMonthlyTarget(user.monthlyTarget || 100000);
+    }
+  }, [user?.id, user?.monthlyTarget, fetchUserRecords, fetchTotalAmount]);
+
+  // Excel 내보내기 핸들러들
+  const handleExportAll = () => {
+    try {
+      const result = exportToExcel(records);
+      alert(
+        `성공적으로 내보냈습니다!\n파일명: ${result.filename}\n총 ${
+          result.totalRecords
+        }건, ${result.totalAmount.toLocaleString()}원`
+      );
+      setShowExportModal(false);
+    } catch (error) {
+      console.error("Excel 내보내기 실패:", error);
+      alert("Excel 내보내기에 실패했습니다.");
+    }
+  };
+
+  const handleExportByPeriod = (days: number) => {
+    try {
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - days);
+
+      const result = exportRecordsByPeriod(records, startDate, endDate);
+      alert(
+        `성공적으로 내보냈습니다!\n파일명: ${result.filename}\n총 ${
+          result.totalRecords
+        }건, ${result.totalAmount.toLocaleString()}원`
+      );
+      setShowExportModal(false);
+    } catch (error) {
+      console.error("Excel 내보내기 실패:", error);
+      alert("Excel 내보내기에 실패했습니다.");
+    }
+  };
+
+  const handleExportByCategory = (category: string) => {
+    try {
+      const result = exportRecordsByCategory(records, category);
+      alert(
+        `성공적으로 내보냈습니다!\n파일명: ${result.filename}\n총 ${
+          result.totalRecords
+        }건, ${result.totalAmount.toLocaleString()}원`
+      );
+      setShowExportModal(false);
+    } catch (error) {
+      console.error("Excel 내보내기 실패:", error);
+      alert("Excel 내보내기에 실패했습니다.");
+    }
+  };
+
+  // 월간 목표 저장 핸들러
+  const handleSaveMonthlyTarget = async () => {
+    if (!user?.id) return;
+
+    try {
+      const result = await userService.updateMonthlyTarget(
+        user.id,
+        monthlyTarget
+      );
+      alert(result.message);
+
+      // 사용자 정보 새로고침 (필요시)
+      // getCurrentUser(); 를 호출하여 최신 사용자 정보를 가져올 수 있습니다.
+    } catch (error) {
+      console.error("월간 목표 설정 실패:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "월간 목표 설정에 실패했습니다."
+      );
+    }
+  };
 
   return (
     <div className="space-y-6 pt-6">
@@ -44,10 +138,10 @@ export default function SettingsPage() {
               절약 레벨 {user?.level || 1}
             </p>
             <p className="text-xs text-gray-500">
-              총 {balance.toLocaleString()}원 절약 • {records.length}회 기록
+              총 {totalAmount.toLocaleString()}원 절약 • {records.length}회 기록
             </p>
           </div>
-          <button className="text-sm text-brand-600">편집</button>
+          {/* <button className="text-sm text-brand-600">편집</button> */}
         </div>
       </div>
 
@@ -75,19 +169,28 @@ export default function SettingsPage() {
               <span>5만원</span>
               <span>50만원</span>
             </div>
+            <button
+              onClick={handleSaveMonthlyTarget}
+              className="mt-3 w-full bg-brand-600 text-white py-2 px-4 rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium"
+            >
+              목표 저장
+            </button>
           </div>
           <div className="bg-gray-50 rounded-xl p-3">
             <div className="flex justify-between items-center">
               <span className="text-sm text-gray-600">이번 달 진행률</span>
               <span className="text-sm font-semibold text-brand-600">
-                {Math.min(100, (balance / monthlyTarget) * 100).toFixed(1)}%
+                {Math.min(100, (totalAmount / monthlyTarget) * 100).toFixed(1)}%
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
               <div
                 className="gradient-primary h-2 rounded-full transition-all duration-300"
                 style={{
-                  width: `${Math.min(100, (balance / monthlyTarget) * 100)}%`,
+                  width: `${Math.min(
+                    100,
+                    (totalAmount / monthlyTarget) * 100
+                  )}%`,
                 }}
               ></div>
             </div>
@@ -184,6 +287,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <svg
+              onClick={() => alert("기능 준비 중입니다.")}
               className="w-5 h-5 text-gray-400"
               fill="none"
               stroke="currentColor"
@@ -211,6 +315,7 @@ export default function SettingsPage() {
               </div>
             </div>
             <svg
+              onClick={() => alert("기능 준비 중입니다.")}
               className="w-5 h-5 text-gray-400"
               fill="none"
               stroke="currentColor"
@@ -225,7 +330,10 @@ export default function SettingsPage() {
             </svg>
           </button>
 
-          <button className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+          <button
+            onClick={() => setShowExportModal(true)}
+            className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors"
+          >
             <div className="flex items-center gap-3">
               <span className="text-lg">📊</span>
               <div className="text-left">
@@ -233,7 +341,7 @@ export default function SettingsPage() {
                   데이터 내보내기
                 </div>
                 <div className="text-xs text-gray-500">
-                  절약 기록을 CSV로 내보내기
+                  절약 기록을 Excel로 내보내기
                 </div>
               </div>
             </div>
@@ -331,17 +439,42 @@ export default function SettingsPage() {
         </div>
       </div> */}
 
+      {/* 로그아웃 */}
+      <div className="pb-6">
+        <button
+          onClick={async () => {
+            try {
+              await logout();
+              navigate("/login");
+            } catch (error) {
+              console.error("로그아웃 실패:", error);
+              navigate("/login");
+            }
+          }}
+          className="w-full flex items-center justify-center gap-2 p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
+        >
+          <span className="text-lg">🚪</span>
+          <span className="text-sm font-medium">로그아웃</span>
+        </button>
+      </div>
+
       {/* 앱 정보 */}
       <div className="card p-4">
         <h3 className="font-semibold text-gray-900 mb-4">앱 정보</h3>
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex justify-between">
             <span>버전</span>
-            <span>1.0.0</span>
+            <span>v{BUILD_INFO.VERSION}</span>
           </div>
           <div className="flex justify-between">
             <span>마지막 업데이트</span>
-            <span>2024.12.31</span>
+            <span>
+              {new Date(BUILD_INFO.BUILD_TIME).toLocaleDateString("ko-KR")}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span>빌드 번호</span>
+            <span>#{BUILD_INFO.BUILD_NUMBER}</span>
           </div>
         </div>
         <div className="mt-4 pt-4 border-t border-gray-100">
@@ -352,6 +485,100 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
+
+      {/* Excel 내보내기 모달 */}
+      {showExportModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">
+              데이터 내보내기
+            </h3>
+
+            <div className="space-y-3">
+              {/* 전체 내보내기 */}
+              <button
+                onClick={handleExportAll}
+                className="w-full p-3 text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">📋</span>
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">
+                      전체 기록
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      모든 절약 기록 ({records.length}건)
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* 기간별 내보내기 */}
+              <button
+                onClick={() => handleExportByPeriod(7)}
+                className="w-full p-3 text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">📅</span>
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">
+                      최근 7일
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      일주일간의 절약 기록
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleExportByPeriod(30)}
+                className="w-full p-3 text-left rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">🗓️</span>
+                  <div>
+                    <div className="text-sm font-medium text-gray-900">
+                      최근 30일
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      한 달간의 절약 기록
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* 카테고리별 내보내기 */}
+              <div className="pt-2 border-t border-gray-100">
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  카테고리별
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {["음식", "교통", "쇼핑", "엔터테인먼트"].map((category) => (
+                    <button
+                      key={category}
+                      onClick={() => handleExportByCategory(category)}
+                      className="p-2 text-xs rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                    >
+                      {category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* 모달 닫기 */}
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={() => setShowExportModal(false)}
+                className="flex-1 py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // CSRF 비활성화
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/users/**", "/oauth2/**", "/login/oauth2/**", "/h2-console/**").permitAll()
+                        .requestMatchers("/api/users/**", "/api/savings/**", "/api/challenges/**", "/oauth2/**", "/login/oauth2/**", "/h2-console/**").permitAll()
                         .anyRequest().permitAll() // 개발 단계에서는 모든 요청 허용
                 )
                 .oauth2Login(oauth2 -> oauth2

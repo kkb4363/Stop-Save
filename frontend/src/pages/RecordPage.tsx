@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { useSavingsStore } from "../store/useSavingsStore";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import { useSavingRecordStore } from "../store/useSavingRecordStore";
 
 const QUICK_ITEMS = [
   { label: "커피", amount: 4500, category: "음식", icon: "☕" },
-  { label: "택시", amount: 12000, category: "교통", icon: "🚕" },
-  { label: "배달", amount: 18000, category: "음식", icon: "🍕" },
+  { label: "택시", amount: 5000, category: "교통", icon: "🚕" },
+  { label: "배달", amount: 20000, category: "음식", icon: "🍕" },
   { label: "간식", amount: 2500, category: "음식", icon: "🍿" },
-  { label: "영화", amount: 15000, category: "엔터테인먼트", icon: "🎬" },
+  { label: "영화", amount: 10000, category: "엔터테인먼트", icon: "🎬" },
   { label: "쇼핑", amount: 30000, category: "쇼핑", icon: "🛍️" },
 ];
 
@@ -25,20 +25,21 @@ export default function RecordPage() {
   const [category, setCategory] = useState("기타");
   const [memo, setMemo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const addRecord = useSavingsStore((s) => s.addRecord);
+  const { createRecord } = useSavingRecordStore();
   const navigate = useNavigate();
   const { user } = useAuthStore();
 
   const handleSubmit = async () => {
-    if (amount === "" || amount <= 0) return;
+    if (amount === "" || amount <= 0 || !user) return;
 
     setIsSubmitting(true);
 
-    // 애니메이션을 위한 딜레이
-    setTimeout(() => {
-      addRecord({
+    try {
+      await createRecord({
+        userId: user.id,
+        itemName: memo || category,
         amount: Number(amount),
-        category: category as any,
+        category,
         memo,
       });
 
@@ -49,7 +50,11 @@ export default function RecordPage() {
 
       // 홈으로 이동
       navigate("/");
-    }, 500);
+    } catch (error) {
+      console.error("절약 기록 등록 실패:", error);
+      setIsSubmitting(false);
+      // 에러 처리는 스토어에서 관리
+    }
   };
 
   return (

@@ -149,6 +149,43 @@ class UserService {
 
     return response.json();
   }
+
+  // 월간 목표 금액 설정
+  async updateMonthlyTarget(
+    userId: number,
+    monthlyTarget: number
+  ): Promise<{ success: boolean; monthlyTarget: number; message: string }> {
+    const response = await fetch(`${API_BASE_URL}/${userId}/monthly-target`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ monthlyTarget }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "월간 목표 설정에 실패했습니다.");
+    }
+
+    return response.json();
+  }
+
+  // 월간 목표 금액 조회
+  async getMonthlyTarget(userId: number): Promise<{ monthlyTarget: number }> {
+    const response = await fetch(`${API_BASE_URL}/${userId}/monthly-target`, {
+      method: "GET",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "월간 목표 조회에 실패했습니다.");
+    }
+
+    return response.json();
+  }
 }
 
 export const userService = new UserService();
