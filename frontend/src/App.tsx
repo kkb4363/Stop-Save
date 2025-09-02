@@ -1,6 +1,35 @@
-import { Outlet, Link, NavLink } from "react-router-dom";
+import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuthStore } from "./store/useAuthStore";
 
 function App() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout, getCurrentUser } = useAuthStore();
+
+  // 페이지 로드 시 현재 사용자 정보 확인
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        await getCurrentUser();
+      } catch (error) {
+        console.error("인증 확인 실패:", error);
+      }
+    };
+
+    checkAuth();
+  }, [getCurrentUser]);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/login");
+    } catch (error) {
+      console.error("로그아웃 실패:", error);
+      // 에러가 발생해도 로그인 페이지로 이동
+      navigate("/login");
+    }
+  };
+
   return (
     <div className="min-h-full bg-gray-50">
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
@@ -9,21 +38,43 @@ function App() {
             <Link to="/" className="text-lg font-bold text-gray-900">
               💰 소비 멈춰 적금
             </Link>
-            <button className="p-2 rounded-lg hover:bg-gray-100">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                />
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              {isAuthenticated && user ? (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-600">
+                    {user.nickname || user.username}님
+                  </span>
+                  <button
+                    onClick={handleLogout}
+                    className="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    로그아웃
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => navigate("/login")}
+                  className="px-3 py-2 text-sm text-brand-600 hover:text-brand-700 hover:bg-brand-50 rounded-lg transition-colors"
+                >
+                  로그인
+                </button>
+              )}
+              <button className="p-2 rounded-lg hover:bg-gray-100">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </header>

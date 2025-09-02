@@ -9,18 +9,59 @@ import RecordPage from "./pages/RecordPage.tsx";
 import StatsPage from "./pages/StatsPage.tsx";
 import ChallengesPage from "./pages/ChallengesPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
+import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "record", element: <RecordPage /> },
-      { path: "stats", element: <StatsPage /> },
-      { path: "challenges", element: <ChallengesPage /> },
-      { path: "settings", element: <SettingsPage /> },
+      {
+        index: true,
+        element: (
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "record",
+        element: (
+          <ProtectedRoute>
+            <RecordPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "stats",
+        element: (
+          <ProtectedRoute>
+            <StatsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "challenges",
+        element: (
+          <ProtectedRoute>
+            <ChallengesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "settings",
+        element: (
+          <ProtectedRoute>
+            <SettingsPage />
+          </ProtectedRoute>
+        ),
+      },
     ],
+  },
+  {
+    path: "/login",
+    element: <LoginPage />,
   },
 ]);
 

@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
 import { useSavingsStore } from "../store/useSavingsStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function HomePage() {
   const { balance, level, experience, records } = useSavingsStore();
+  const { user } = useAuthStore();
 
   // 오늘 절약한 금액 계산
   const today = new Date().toDateString();
@@ -18,7 +20,9 @@ export default function HomePage() {
       {/* 메인 카드 */}
       <div className="card p-6 gradient-card">
         <div className="text-center">
-          <p className="text-sm text-gray-600 mb-2">한기 님의 절약</p>
+          <p className="text-sm text-gray-600 mb-2">
+            {user?.nickname || user?.username || "사용자"} 님의 절약
+          </p>
           <div className="text-3xl font-bold text-gray-900 mb-1">
             {balance.toLocaleString()}원
           </div>

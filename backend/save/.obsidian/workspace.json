@@ -171,12 +171,17 @@
   },
   "active": "cd79e8d30307934d",
   "lastOpenFiles": [
-    "build/classes/java/main/stop/save/SaveApplication.class",
-    "build/tmp/compileJava/compileTransaction/stash-dir/SaveApplication.class.uniqueId0",
-    "build/tmp/compileJava/compileTransaction/stash-dir",
-    "build/tmp/compileJava/compileTransaction/backup-dir",
-    "build/tmp/compileJava/compileTransaction",
-    "src/main/java/stop/save/SaveApplication.java~",
+    "build/classes/java/main/stop/save/controller/UserController.class",
+    "build/classes/java/main/stop/save/controller/UserController$LoginRequest.class",
+    "build/classes/java/main/stop/save/repository/UserRepository.class",
+    "build/classes/java/main/stop/save/service/UserService.class",
+    "build/classes/java/main/stop/save/repository/SavingRecordRepository.class",
+    "build/classes/java/main/stop/save/entity/User$LoginType.class",
+    "build/classes/java/main/stop/save/entity/User$Role.class",
+    "build/tmp/compileJava/compileTransaction/stash-dir/UserRepository.class.uniqueId6",
+    "build/tmp/compileJava/compileTransaction/stash-dir/User$LoginType.class.uniqueId5",
+    "build/tmp/compileJava/compileTransaction/stash-dir/UserService.class.uniqueId4",
+    "build/tmp/compileJava/compileTransaction/stash-dir/User$Role.class.uniqueId3",
     "DevGuide.md"
   ]
 }

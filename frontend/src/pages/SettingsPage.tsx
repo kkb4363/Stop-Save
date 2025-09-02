@@ -1,7 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSavingsStore } from "../store/useSavingsStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function SettingsPage() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
   const { balance, records } = useSavingsStore();
   const [monthlyTarget, setMonthlyTarget] = useState(100000);
   const [notifications, setNotifications] = useState({
@@ -22,11 +26,23 @@ export default function SettingsPage() {
       <div className="card p-4">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center">
-            <span className="text-2xl text-white">👤</span>
+            {user?.picture ? (
+              <img
+                src={user.picture}
+                alt="프로필"
+                className="w-16 h-16 rounded-full object-cover"
+              />
+            ) : (
+              <span className="text-2xl text-white">👤</span>
+            )}
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-gray-900">한기님</h3>
-            <p className="text-sm text-gray-600">절약 레벨 1</p>
+            <h3 className="font-semibold text-gray-900">
+              {user?.nickname || user?.username || "사용자"}님
+            </h3>
+            <p className="text-sm text-gray-600">
+              절약 레벨 {user?.level || 1}
+            </p>
             <p className="text-xs text-gray-500">
               총 {balance.toLocaleString()}원 절약 • {records.length}회 기록
             </p>
@@ -237,6 +253,83 @@ export default function SettingsPage() {
           </button>
         </div>
       </div>
+
+      {/* 계정 관리 */}
+      {/* <div className="card p-4">
+        <h3 className="font-semibold text-gray-900 mb-4">계정 관리</h3>
+        <div className="space-y-3">
+          <button className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">🔐</span>
+              <div className="text-left">
+                <div className="text-sm font-medium text-gray-900">
+                  비밀번호 변경
+                </div>
+                <div className="text-xs text-gray-500">
+                  계정 보안을 위해 비밀번호를 변경하세요
+                </div>
+              </div>
+            </div>
+            <svg
+              className="w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+
+          <button className="w-full flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+            <div className="flex items-center gap-3">
+              <span className="text-lg">📧</span>
+              <div className="text-left">
+                <div className="text-sm font-medium text-gray-900">
+                  이메일 변경
+                </div>
+                <div className="text-xs text-gray-500">
+                  로그인에 사용하는 이메일을 변경하세요
+                </div>
+              </div>
+            </div>
+            <svg
+              className="w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </button>
+
+          <button
+            onClick={async () => {
+              try {
+                await logout();
+                navigate("/login");
+              } catch (error) {
+                console.error("로그아웃 실패:", error);
+                // 에러가 발생해도 로그인 페이지로 이동
+                navigate("/login");
+              }
+            }}
+            className="w-full flex items-center justify-center gap-2 p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
+          >
+            <span className="text-lg">🚪</span>
+            <span className="text-sm font-medium">로그아웃</span>
+          </button>
+        </div>
+      </div> */}
 
       {/* 앱 정보 */}
       <div className="card p-4">

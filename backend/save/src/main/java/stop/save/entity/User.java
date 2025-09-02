@@ -2,7 +2,6 @@ package stop.save.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,16 +14,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
     @Column(unique = true)
     private String username;
 
-    @NotBlank
     @Email
     @Column(unique = true)
     private String email;
 
-    @NotBlank
+    @Column(nullable = true) // OAuth2 로그인시에는 null이 될 수 있음
     private String password;
 
     private String nickname;
@@ -41,10 +38,28 @@ public class User {
     @UpdateTimestamp
     private LocalDateTime updatedAt;
 
+    // OAuth2 관련 필드 추가
+    private String picture; // 구글 프로필 이미지
+
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER; // 기본값은 USER
+
+    @Enumerated(EnumType.STRING)
+    private LoginType loginType = LoginType.GENERAL; // 로그인 타입
+
     // 기본 생성자
     public User() {}
 
-    // Getter, Setter 메서드들 (필요한 것들만)
+    // OAuth2용 생성자 추가
+    public User(String email, String nickname, String picture) {
+        this.email = email;
+        this.nickname = nickname;
+        this.picture = picture;
+        this.loginType = LoginType.GOOGLE;
+        this.role = Role.USER;
+    }
+
+    // 기존 Getter, Setter 메서드들
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -71,4 +86,30 @@ public class User {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+
+    // OAuth2 관련 Getter, Setter 추가
+    public String getPicture() { return picture; }
+    public void setPicture(String picture) { this.picture = picture; }
+
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
+
+    public LoginType getLoginType() { return loginType; }
+    public void setLoginType(LoginType loginType) { this.loginType = loginType; }
+
+    // OAuth2 사용자 정보 업데이트 메서드
+    public User update(String nickname, String picture) {
+        this.nickname = nickname;
+        this.picture = picture;
+        return this;
+    }
+
+    // 내부 enum 정의
+    public enum Role {
+        USER, ADMIN
+    }
+
+    public enum LoginType {
+        GENERAL, GOOGLE
+    }
 }

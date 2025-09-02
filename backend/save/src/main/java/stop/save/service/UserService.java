@@ -81,4 +81,43 @@ public class UserService {
     public User updateUser(User user) {
         return userRepository.save(user);
     }
+
+    // OAuth2 사용자 등록 또는 업데이트
+    public User saveOrUpdateOAuth2User(String email, String nickname, String picture) {
+        Optional<User> existingUser = userRepository.findByEmail(email);
+
+        if (existingUser.isPresent()) {
+            // 기존 사용자 정보 업데이트
+            User user = existingUser.get();
+            user.setNickname(nickname);
+            user.setPicture(picture);
+            return userRepository.save(user);
+        } else {
+            // 새 OAuth2 사용자 생성
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setNickname(nickname);
+            newUser.setPicture(picture);
+            newUser.setLoginType(User.LoginType.GOOGLE);
+            newUser.setRole(User.Role.USER);
+
+            // OAuth2 사용자를 위한 username 자동 생성 (email 기반)
+            String username = email.split("@")[0] + "_" + System.currentTimeMillis();
+            newUser.setUsername(username);
+
+            // OAuth2 사용자는 password가 필요 없음 (null 허용)
+
+            // 기본값 설정
+            newUser.setLevel(1);
+            newUser.setExperience(0);
+            newUser.setTotalSavings(0L);
+
+            return userRepository.save(newUser);
+        }
+    }
+
+    // 이메일로 사용자 조회
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSavingsStore } from "../store/useSavingsStore";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/useAuthStore";
 
 const QUICK_ITEMS = [
   { label: "커피", amount: 4500, category: "음식", icon: "☕" },
@@ -26,6 +27,7 @@ export default function RecordPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const addRecord = useSavingsStore((s) => s.addRecord);
   const navigate = useNavigate();
+  const { user } = useAuthStore();
 
   const handleSubmit = async () => {
     if (amount === "" || amount <= 0) return;
@@ -55,7 +57,10 @@ export default function RecordPage() {
       {/* 헤더 */}
       <div className="text-center">
         <h1 className="text-xl font-bold text-gray-900 mb-2">절약 등록</h1>
-        <p className="text-sm text-gray-600">오늘 참은 소비를 기록해보세요</p>
+        <p className="text-sm text-gray-600">
+          {user?.nickname || user?.username || "사용자"}님, 오늘 참은 소비를
+          기록해보세요
+        </p>
       </div>
 
       {/* 빠른 선택 */}
@@ -100,7 +105,7 @@ export default function RecordPage() {
           <div className="relative">
             <input
               type="number"
-              className="w-full text-right text-2xl font-bold bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-brand-500 focus:bg-white"
+              className="w-full text-right text-2xl font-bold bg-gray-50 border-0 rounded-xl pr-8 pl-4 py-4 focus:ring-2 focus:ring-brand-500 focus:bg-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
               placeholder="0"
               value={amount}
               onChange={(e) =>

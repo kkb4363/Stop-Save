@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useSavingsStore } from "../store/useSavingsStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 const DAILY_CHALLENGES = [
   {
@@ -62,6 +63,7 @@ const MONTHLY_CHALLENGES = [
 export default function ChallengesPage() {
   const { records, balance } = useSavingsStore();
   const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
+  const { user } = useAuthStore();
 
   const completeChallenge = (challengeId: string) => {
     if (!completedChallenges.includes(challengeId)) {
@@ -80,7 +82,10 @@ export default function ChallengesPage() {
       {/* 헤더 */}
       <div className="text-center">
         <h1 className="text-xl font-bold text-gray-900 mb-2">챌린지</h1>
-        <p className="text-sm text-gray-600">절약 챌린지에 도전해보세요!</p>
+        <p className="text-sm text-gray-600">
+          {user?.nickname || user?.username || "사용자"}님, 절약 챌린지에
+          도전해보세요!
+        </p>
       </div>
 
       {/* 진행 상황 */}

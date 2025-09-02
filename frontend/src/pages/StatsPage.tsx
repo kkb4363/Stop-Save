@@ -1,7 +1,9 @@
 import { useSavingsStore } from "../store/useSavingsStore";
+import { useAuthStore } from "../store/useAuthStore";
 
 export default function StatsPage() {
   const { records, balance, level } = useSavingsStore();
+  const { user } = useAuthStore();
 
   // 카테고리별 통계 계산
   const categoryStats = records.reduce((acc, record) => {
@@ -51,7 +53,10 @@ export default function StatsPage() {
       {/* 헤더 */}
       <div className="text-center">
         <h1 className="text-xl font-bold text-gray-900 mb-2">절약 통계</h1>
-        <p className="text-sm text-gray-600">나의 절약 현황을 확인해보세요</p>
+        <p className="text-sm text-gray-600">
+          {user?.nickname || user?.username || "사용자"}님의 절약 현황을
+          확인해보세요
+        </p>
       </div>
 
       {/* 요약 카드 */}
