@@ -70,19 +70,11 @@ public class SavingRecordController {
         return ResponseEntity.ok(results);
     }
 
-
-    // 이번 달 절약 기록
-//    @GetMapping("/month/{userId}")
-//    public ResponseEntity<List<SavingRecord>> getThisMonthSavingRecords(@PathVariable Long userId) {
-//        List<SavingRecord> records = savingRecordService.getThisMonthSavingRecords(userId);
-//        return ResponseEntity.ok(records);
-//    }
-
-    // 총 절약 금액 조회
-    @GetMapping("/total/{userId}")
-    public ResponseEntity<Long> getTotalSavingsAmount(@PathVariable Long userId) {
-        Long totalAmount = savingRecordService.getTotalSavingsAmount(userId);
-        return ResponseEntity.ok(totalAmount);
+    // 총 절약 기록
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<SavingRecord>> getAllRecords(@PathVariable Long userId){
+        List<SavingRecord> results = savingRecordService.getAllRecords(userId);
+        return ResponseEntity.ok(results);
     }
 
     // 카테고리별 통계

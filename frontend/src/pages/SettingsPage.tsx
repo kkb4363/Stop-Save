@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const { user, logout } = useAuthStore();
   const { records, totalAmount, fetchUserRecords, fetchTotalAmount } =
     useSavingRecordStore();
+  const { getCurrentUser } = useAuthStore();
   const [monthlyTarget, setMonthlyTarget] = useState(
     user?.monthlyTarget || 100000
   );
@@ -30,6 +31,7 @@ export default function SettingsPage() {
     if (user?.id) {
       fetchUserRecords(user.id);
       fetchTotalAmount(user.id);
+
       // 사용자 정보에서 월간 목표 설정
       setMonthlyTarget(user.monthlyTarget || 100000);
     }
@@ -94,8 +96,9 @@ export default function SettingsPage() {
         user.id,
         monthlyTarget
       );
-      alert(result.message);
+      getCurrentUser();
 
+      alert(result.message);
       // 사용자 정보 새로고침 (필요시)
       // getCurrentUser(); 를 호출하여 최신 사용자 정보를 가져올 수 있습니다.
     } catch (error) {
@@ -159,7 +162,7 @@ export default function SettingsPage() {
             <input
               type="range"
               min="50000"
-              max="500000"
+              max="1000000"
               step="10000"
               value={monthlyTarget}
               onChange={(e) => setMonthlyTarget(Number(e.target.value))}
@@ -167,7 +170,7 @@ export default function SettingsPage() {
             />
             <div className="flex justify-between text-xs text-gray-500 mt-1">
               <span>5만원</span>
-              <span>50만원</span>
+              <span>100만원</span>
             </div>
             <button
               onClick={handleSaveMonthlyTarget}

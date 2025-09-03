@@ -81,7 +81,7 @@ export default function ListPage() {
         <div>
           <h1 className="text-xl font-bold text-gray-900">절약 기록</h1>
           <p className="text-sm text-gray-600 mt-1">
-            총 {filteredAndSortedRecords.length}개의 기록
+            총 {filteredAndSortedRecords.length}번의 절약
           </p>
         </div>
       </div>
@@ -92,9 +92,7 @@ export default function ListPage() {
           <div className="text-2xl font-bold text-gray-900 mb-1">
             {totalAmount.toLocaleString()}원
           </div>
-          <p className="text-sm text-gray-600">
-            {filterCategory === "전체" ? "전체" : filterCategory} 절약 총액
-          </p>
+          <p className="text-sm text-gray-600">전체 절약 총액</p>
         </div>
       </div>
 
@@ -169,7 +167,7 @@ export default function ListPage() {
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900">{month}</h3>
                 <div className="text-sm text-gray-500">
-                  {monthRecords.length}개 기록 ·{" "}
+                  {monthRecords.length}번 절약 ·{" "}
                   {monthRecords
                     .reduce((sum, record) => sum + record.amount, 0)
                     .toLocaleString()}

@@ -33,4 +33,10 @@ class SavingRecordControllerTest {
         ResponseEntity<Long> test2 = sv.getTotalAmount(2L);
         System.out.println("test2="+ test2);
     }
+
+    @Test
+    void getAllRecords() {
+        ResponseEntity<List<SavingRecord>> test = sv.getAllRecords(2L);
+        System.out.println(test);
+    }
 }

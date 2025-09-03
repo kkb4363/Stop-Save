@@ -105,17 +105,19 @@ const getRecordsByPeriod = (
         // 오늘 기록들
         return recordDate.toDateString() === now.toDateString();
 
-      case "weekly":
-        // 지난 7일 기록들
+      case "weekly": // 지난 7일 기록들
+      {
         const weekAgo = new Date(now);
         weekAgo.setDate(weekAgo.getDate() - 7);
         return recordDate >= weekAgo;
+      }
 
-      case "monthly":
-        // 지난 30일 기록들
+      case "monthly": // 지난 30일 기록들
+      {
         const monthAgo = new Date(now);
         monthAgo.setDate(monthAgo.getDate() - 30);
         return recordDate >= monthAgo;
+      }
 
       default:
         return false;
@@ -142,7 +144,7 @@ const getConsecutiveDays = (records: SavingRecord[]): number => {
   );
 
   let consecutiveDays = 0;
-  let currentDate = new Date();
+  const currentDate = new Date();
 
   for (const dateStr of dates) {
     const recordDate = new Date(dateStr);
@@ -193,20 +195,22 @@ export const checkAndCompleteAutoChallenges = async (
           }
           break;
 
-        case "target":
-          // 월간 목표 금액 달성
+        case "target": // 월간 목표 금액 달성
+        {
           const monthlyTotal = periodRecords.reduce(
             (sum, record) => sum + record.amount,
             0
           );
           isCompleted = monthlyTotal >= 100000;
           break;
+        }
 
-        case "streak":
-          // 30일 연속 기록
+        case "streak": // 30일 연속 기록
+        {
           const consecutiveDays = getConsecutiveDays(records);
           isCompleted = consecutiveDays >= 30;
           break;
+        }
 
         default:
           break;

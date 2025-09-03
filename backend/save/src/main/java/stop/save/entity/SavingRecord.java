@@ -28,8 +28,8 @@ public class SavingRecord {
 
     private String memo; // 메모
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY) @JsonIgnore
+    @JoinColumn(name = "user_id")
     private User user;
 
 

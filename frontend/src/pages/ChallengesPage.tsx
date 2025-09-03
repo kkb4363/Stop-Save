@@ -14,17 +14,15 @@ const MONTHLY_CHALLENGES = CHALLENGES.filter((c) => c.period === "monthly");
 
 export default function ChallengesPage() {
   const { user } = useAuthStore();
-  const { todayRecords, records, fetchTodayRecords, fetchUserRecords } =
-    useSavingRecordStore();
+  const { todayRecords, records, fetchUserRecords } = useSavingRecordStore();
   const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
 
   // 사용자 데이터 로드
   useEffect(() => {
     if (user?.id) {
-      fetchTodayRecords(user.id);
       fetchUserRecords(user.id);
     }
-  }, [user?.id, fetchTodayRecords, fetchUserRecords]);
+  }, [user?.id, fetchUserRecords]);
 
   // 완료된 챌린지 로드 및 자동 완료 확인
   useEffect(() => {
@@ -69,14 +67,8 @@ export default function ChallengesPage() {
 
       {/* 진행 상황 */}
       <div className="card p-4">
-        <h3 className="font-semibold text-gray-900 mb-3">오늘의 성과</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-brand-600">
-              {todayRecords.length}
-            </div>
-            <div className="text-xs text-gray-500">오늘 절약 횟수</div>
-          </div>
+        <h3 className="font-semibold text-gray-900 mb-3">챌린지 성과</h3>
+        <div className="grid grid-cols-1 gap-4">
           <div className="text-center">
             <div className="text-2xl font-bold text-brand-600">
               {completedChallenges.length}

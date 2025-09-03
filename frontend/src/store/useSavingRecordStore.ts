@@ -9,7 +9,6 @@ import { savingRecordService } from "../services/savingRecordService";
 
 interface SavingRecordState {
   records: SavingRecord[];
-  todayRecords: SavingRecord[];
   todayTotalAmount: number;
   monthTotalAmount: number;
   monthTotalCount: number;
@@ -38,7 +37,6 @@ export const useSavingRecordStore = create<SavingRecordState>()(
   persist(
     (set, get) => ({
       records: [],
-      todayRecords: [],
       monthRecords: [],
       todayTotalAmount: 0,
       monthTotalAmount: 0,
@@ -56,18 +54,14 @@ export const useSavingRecordStore = create<SavingRecordState>()(
             request
           );
 
+          console.log(get().records);
+
           // 기존 기록에 새 기록 추가
-          const currentRecords = get().records;
+          const currentRecords = get().records || [];
           set({
             records: [newRecord, ...currentRecords],
             isLoading: false,
           });
-
-          // 관련 데이터 새로고침
-          get().fetchTodayAmount(request.userId);
-          get().fetchMonthAmount(request.userId);
-          get().fetchTotalAmount(request.userId);
-          get().fetchCategoryStats(request.userId);
         } catch (error) {
           set({
             isLoading: false,
@@ -200,7 +194,6 @@ export const useSavingRecordStore = create<SavingRecordState>()(
       name: "saving-record-storage",
       partialize: (state) => ({
         records: state.records,
-        todayRecords: state.todayRecords,
         monthRecords: state.monthRecords,
         totalAmount: state.totalAmount,
         categoryStats: state.categoryStats,

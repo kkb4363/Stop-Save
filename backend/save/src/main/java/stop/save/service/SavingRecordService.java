@@ -27,8 +27,6 @@ public class SavingRecordService {
     @Autowired
     private UserService userService;
 
-
-
     // 절약 기록 등록
     public SavingRecord createSavingRecord(Long userId, String itemName, Long amount, String category, String memo) {
         Optional<User> userOpt = userService.getUserById(userId);
@@ -102,11 +100,9 @@ public class SavingRecordService {
         return savingRecordRepository2.list(userId).stream().mapToLong(sr -> sr.getAmount()).sum();
     }
 
-
-
-    // 총 절약 금액 조회
-    public Long getTotalSavingsAmount(Long userId) {
-        return savingRecordRepository.getTotalSavingsAmountByUserId(userId);
+    // 총 절약 기록
+    public List<SavingRecord> getAllRecords(Long userId){
+        return savingRecordRepository2.list(userId).stream().toList();
     }
 
     // 카테고리별 통계
