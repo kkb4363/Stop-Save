@@ -6,6 +6,7 @@ import {
   checkAndCompleteAutoChallenges,
   CHALLENGES,
 } from "../utils/challengeAutoComplete";
+import ReactConfetti from "react-confetti";
 
 // 챌린지를 기간별로 분류
 const DAILY_CHALLENGES = CHALLENGES.filter((c) => c.period === "daily");
@@ -14,8 +15,16 @@ const MONTHLY_CHALLENGES = CHALLENGES.filter((c) => c.period === "monthly");
 
 export default function ChallengesPage() {
   const { user } = useAuthStore();
-  const { todayRecords, records, fetchUserRecords } = useSavingRecordStore();
+  const { records, fetchUserRecords } = useSavingRecordStore();
   const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  const handleCompleteChallenge = () => {
+    setShowCelebration(true);
+    setTimeout(() => {
+      setShowCelebration(false);
+    }, 5000); // 2초 후 사라짐
+  };
 
   // 사용자 데이터 로드
   useEffect(() => {
@@ -32,19 +41,13 @@ export default function ChallengesPage() {
       setCompletedChallenges(storedCompletions);
 
       // 자동 챌린지 완료 확인
-      checkAndCompleteAutoChallenges(
-        records,
-        user.id,
-        (challengeId, challenge) => {
-          // 새로 완료된 챌린지 알림
-          if (!storedCompletions.includes(challengeId)) {
-            // 완료 알림 (선택사항)
-            console.log(
-              `🎉 챌린지 완료: ${challenge.title} (+${challenge.reward}원)`
-            );
-          }
+      checkAndCompleteAutoChallenges(records, user.id, (challengeId) => {
+        // 새로 완료된 챌린지 알림
+        if (!storedCompletions.includes(challengeId)) {
+          // 완료 알림
+          handleCompleteChallenge();
         }
-      ).then((newCompletions) => {
+      }).then((newCompletions) => {
         if (newCompletions.length > 0) {
           // 새로 완료된 챌린지가 있으면 상태 업데이트
           const updatedCompletions = getCompletedChallengeIds(user.id);
@@ -56,6 +59,15 @@ export default function ChallengesPage() {
 
   return (
     <div className="space-y-6 pt-6">
+      {showCelebration && (
+        <>
+          <ReactConfetti />
+          <div className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-pink-600 animate-bounce">
+            🎉 챌린지를 완료했어요~ 🎉
+          </div>
+        </>
+      )}
+
       {/* 헤더 */}
       <div className="text-center">
         <h1 className="text-xl font-bold text-gray-900 mb-2">챌린지</h1>

@@ -20,31 +20,21 @@ export const CHALLENGES: Challenge[] = [
   {
     id: "coffee",
     title: "커피 한 잔 참기",
-    reward: 5000,
+    reward: 4500,
     icon: "☕",
     description: "오늘 하루 커피를 마시지 않기",
     category: "음식",
-    amount: 5000,
-    period: "daily",
-  },
-  {
-    id: "snack",
-    title: "간식 참기",
-    reward: 3000,
-    icon: "🍿",
-    description: "편의점 간식 구매하지 않기",
-    category: "음식",
-    amount: 3000,
+    amount: 4500,
     period: "daily",
   },
   {
     id: "taxi",
     title: "택시 대신 대중교통",
-    reward: 8000,
+    reward: 10000,
     icon: "🚕",
     description: "택시 대신 지하철/버스 이용하기",
     category: "교통",
-    amount: 8000,
+    amount: 10000,
     period: "daily",
   },
 
@@ -52,21 +42,21 @@ export const CHALLENGES: Challenge[] = [
   {
     id: "delivery",
     title: "배달음식 0회",
-    reward: 30000,
+    reward: 20000,
     icon: "🍕",
     description: "이번 주 배달음식 주문하지 않기",
     category: "음식",
-    amount: 30000,
+    amount: 20000,
     period: "weekly",
   },
   {
     id: "shopping",
     title: "충동구매 참기",
-    reward: 25000,
+    reward: 30000,
     icon: "🛍️",
     description: "계획에 없던 쇼핑 참기",
     category: "쇼핑",
-    amount: 25000,
+    amount: 30000,
     period: "weekly",
   },
 
@@ -105,15 +95,15 @@ const getRecordsByPeriod = (
         // 오늘 기록들
         return recordDate.toDateString() === now.toDateString();
 
-      case "weekly": // 지난 7일 기록들
-      {
+      case "weekly": {
+        // 지난 7일 기록들
         const weekAgo = new Date(now);
         weekAgo.setDate(weekAgo.getDate() - 7);
         return recordDate >= weekAgo;
       }
 
-      case "monthly": // 지난 30일 기록들
-      {
+      case "monthly": {
+        // 지난 30일 기록들
         const monthAgo = new Date(now);
         monthAgo.setDate(monthAgo.getDate() - 30);
         return recordDate >= monthAgo;
@@ -195,8 +185,8 @@ export const checkAndCompleteAutoChallenges = async (
           }
           break;
 
-        case "target": // 월간 목표 금액 달성
-        {
+        case "target": {
+          // 월간 목표 금액 달성
           const monthlyTotal = periodRecords.reduce(
             (sum, record) => sum + record.amount,
             0
@@ -205,8 +195,8 @@ export const checkAndCompleteAutoChallenges = async (
           break;
         }
 
-        case "streak": // 30일 연속 기록
-        {
+        case "streak": {
+          // 30일 연속 기록
           const consecutiveDays = getConsecutiveDays(records);
           isCompleted = consecutiveDays >= 30;
           break;
