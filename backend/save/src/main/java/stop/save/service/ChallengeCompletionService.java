@@ -23,7 +23,7 @@ public class ChallengeCompletionService {
     /**
      * 챌린지 완료 기록 저장
      */
-    public ChallengeCompletion completeChallenge(User user, String challengeId, String challengeTitle, 
+    public synchronized ChallengeCompletion completeChallenge(User user, String challengeId, String challengeTitle, 
                                                ChallengeCompletion.ChallengePeriod period, Integer rewardAmount) {
         
         // 중복 완료 방지 - 기간에 따라 다르게 처리
@@ -37,12 +37,27 @@ public class ChallengeCompletionService {
             return existingCompletion.get();
         }
 
-        // 새로운 완료 기록 생성
-        ChallengeCompletion completion = new ChallengeCompletion(user, challengeId, challengeTitle, period, rewardAmount);
-        ChallengeCompletion saved = challengeCompletionRepository.save(completion);
-        
-        log.info("챌린지 완료 저장: {} (사용자: {}, 보상: {}원)", challengeTitle, user.getId(), rewardAmount);
-        return saved;
+        try {
+            // 새로운 완료 기록 생성
+            ChallengeCompletion completion = new ChallengeCompletion(user, challengeId, challengeTitle, period, rewardAmount);
+            ChallengeCompletion saved = challengeCompletionRepository.save(completion);
+            
+            log.info("챌린지 완료 저장: {} (사용자: {}, 보상: {}원)", challengeTitle, user.getId(), rewardAmount);
+            return saved;
+            
+        } catch (Exception e) {
+            // 유니크 제약조건 위반 등으로 실패한 경우, 기존 기록 다시 조회
+            log.warn("챌린지 완료 저장 실패, 기존 기록 조회: {}", e.getMessage());
+            Optional<ChallengeCompletion> retryCompletion = challengeCompletionRepository
+                    .findRecentCompletion(user, challengeId, checkSince);
+            
+            if (retryCompletion.isPresent()) {
+                return retryCompletion.get();
+            }
+            
+            // 그래도 없으면 예외 발생
+            throw new RuntimeException("챌린지 완료 처리 중 오류가 발생했습니다: " + e.getMessage(), e);
+        }
     }
 
     /**

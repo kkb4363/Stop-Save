@@ -1,4 +1,3 @@
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
@@ -7,6 +6,7 @@ import App from "./App.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import RecordPage from "./pages/RecordPage.tsx";
 import StatsPage from "./pages/StatsPage.tsx";
+import ListPage from "./pages/ListPage.tsx";
 import ChallengesPage from "./pages/ChallengesPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
@@ -42,6 +42,14 @@ const router = createBrowserRouter([
         ),
       },
       {
+        path: "list",
+        element: (
+          <ProtectedRoute>
+            <ListPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
         path: "challenges",
         element: (
           <ProtectedRoute>
@@ -66,7 +74,5 @@ const router = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>
+  <RouterProvider router={router} />
 );

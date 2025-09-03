@@ -161,6 +161,9 @@ const getConsecutiveDays = (records: SavingRecord[]): number => {
   return consecutiveDays;
 };
 
+// 진행 중인 챌린지 완료 요청들을 추적
+const pendingCompletions = new Set<string>();
+
 // 자동 챌린지 완료 확인
 export const checkAndCompleteAutoChallenges = async (
   records: SavingRecord[],
@@ -210,11 +213,21 @@ export const checkAndCompleteAutoChallenges = async (
       }
 
       if (isCompleted) {
+        const completionKey = `${userId}-${challenge.id}-${challenge.period}`;
+
+        // 이미 진행 중인 요청이 있으면 스킵
+        if (pendingCompletions.has(completionKey)) {
+          console.log(`⏳ 챌린지 "${challenge.title}" 이미 처리 중...`);
+          continue;
+        }
+
         // 로컬스토리지에 완료 상태 저장
         saveChallengeCompletion(challenge.id, challenge.period, userId);
         completedChallenges.push(challenge.id);
 
-        // 백엔드에 완료 상태 저장
+        // 백엔드에 완료 상태 저장 (중복 방지)
+        pendingCompletions.add(completionKey);
+
         try {
           await challengeCompletionService.completeChallenge({
             challengeId: challenge.id,
@@ -229,6 +242,9 @@ export const checkAndCompleteAutoChallenges = async (
             error
           );
           // 백엔드 저장 실패해도 로컬 완료 상태는 유지
+        } finally {
+          // 요청 완료 후 추적에서 제거
+          pendingCompletions.delete(completionKey);
         }
 
         // 콜백 함수 호출 (알림 등을 위해)

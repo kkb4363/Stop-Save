@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -34,26 +34,49 @@ public class SavingRecordController {
         }
     }
 
-    // 사용자별 절약 기록 조회
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<SavingRecord>> getUserSavingRecords(@PathVariable Long userId) {
-        List<SavingRecord> records = savingRecordService.getUserSavingRecords(userId);
-        return ResponseEntity.ok(records);
+    // 오늘의 총 절약 금액
+    @GetMapping("/today/{userId}")
+    public ResponseEntity<Long> getUserSavingRecords(@PathVariable Long userId) {
+        Long results = savingRecordService.getTodayTotalAmount(userId);
+        return ResponseEntity.ok(results);
     }
 
-    // 오늘의 절약 기록
-    @GetMapping("/today/{userId}")
-    public ResponseEntity<List<SavingRecord>> getTodaySavingRecords(@PathVariable Long userId) {
-        List<SavingRecord> records = savingRecordService.getTodaySavingRecords(userId);
-        return ResponseEntity.ok(records);
+    // 이번달 총 절약 금액
+    @GetMapping("/month/{userId}")
+    public ResponseEntity<Long> getMonthTotalAmount(@PathVariable Long userId){
+        Long results = savingRecordService.getMonthTotalAmount(userId);
+        return ResponseEntity.ok(results);
     }
+
+    // 이번달 절약 횟수
+    @GetMapping("/month/count/{userId}")
+    public ResponseEntity<Long> getMonthTotalCount(@PathVariable Long userId){
+        Long results = savingRecordService.getMonthTotalCount(userId);
+        return ResponseEntity.ok(results);
+    }
+
+    // 최근 3가지 절약 기록
+    @GetMapping("/latest/{userId}")
+    public ResponseEntity<List<SavingRecord>> getLatestRecords(@PathVariable Long userId){
+        List<SavingRecord> results = savingRecordService.getLatestRecords(userId);
+
+        return ResponseEntity.ok(results);
+    }
+
+    // 총 절약 금액
+    @GetMapping("/all/{userId}")
+    public ResponseEntity<Long> getTotalAmount(@PathVariable Long userId){
+        Long results = savingRecordService.totalAmount(userId);
+        return ResponseEntity.ok(results);
+    }
+
 
     // 이번 달 절약 기록
-    @GetMapping("/month/{userId}")
-    public ResponseEntity<List<SavingRecord>> getThisMonthSavingRecords(@PathVariable Long userId) {
-        List<SavingRecord> records = savingRecordService.getThisMonthSavingRecords(userId);
-        return ResponseEntity.ok(records);
-    }
+//    @GetMapping("/month/{userId}")
+//    public ResponseEntity<List<SavingRecord>> getThisMonthSavingRecords(@PathVariable Long userId) {
+//        List<SavingRecord> records = savingRecordService.getThisMonthSavingRecords(userId);
+//        return ResponseEntity.ok(records);
+//    }
 
     // 총 절약 금액 조회
     @GetMapping("/total/{userId}")

@@ -102,14 +102,11 @@ export const useAuthStore = create<AuthState>()(
 
       getCurrentUser: async () => {
         try {
-          console.log("🔍 getCurrentUser 호출 시작");
           set({ isLoading: true, error: null });
           const userResponse = await userService.getCurrentUser();
-          console.log("✅ 사용자 정보 조회 성공:", userResponse);
 
           // 사용자 정보가 성공적으로 조회되면 인증된 상태로 설정
           if (userResponse && userResponse.id) {
-            console.log("🔐 사용자 인증 상태 설정: true");
             set({
               user: userResponse,
               isAuthenticated: true,
@@ -117,7 +114,6 @@ export const useAuthStore = create<AuthState>()(
               error: null,
             });
           } else {
-            console.log("❌ 사용자 정보 없음, 인증 상태: false");
             // 사용자 정보가 없으면 인증되지 않은 상태
             set({
               user: null,

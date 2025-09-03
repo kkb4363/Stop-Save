@@ -6,28 +6,34 @@ import { useSavingRecordStore } from "../store/useSavingRecordStore";
 export default function HomePage() {
   const { user } = useAuthStore();
   const {
-    records,
-    todayRecords,
+    todayTotalAmount,
+    monthTotalCount,
+    monthTotalAmount,
+    latestRecords,
     totalAmount,
-    fetchUserRecords,
-    fetchTodayRecords,
+    fetchTodayAmount,
+    fetchMonthAmount,
     fetchTotalAmount,
+    fetchMonthCount,
+    fetchLatestRecords,
   } = useSavingRecordStore();
 
-  // 사용자 데이터 로드
   useEffect(() => {
     if (user?.id) {
-      fetchUserRecords(user.id);
-      fetchTodayRecords(user.id);
+      fetchTodayAmount(user.id);
+      fetchMonthAmount(user.id);
+      fetchLatestRecords(user.id);
+      fetchMonthCount(user.id);
       fetchTotalAmount(user.id);
     }
-  }, [user?.id, fetchUserRecords, fetchTodayRecords, fetchTotalAmount]);
-
-  // 오늘 절약한 금액 계산 (백엔드 데이터 사용)
-  const todaySavings = todayRecords.reduce(
-    (sum, record) => sum + record.amount,
-    0
-  );
+  }, [
+    user?.id,
+    fetchTodayAmount,
+    fetchMonthAmount,
+    fetchLatestRecords,
+    fetchMonthCount,
+    fetchTotalAmount,
+  ]);
 
   // 사용자 레벨과 경험치 (백엔드 데이터 사용)
   const level = user?.level || 1;
@@ -46,7 +52,6 @@ export default function HomePage() {
           <div className="text-3xl font-bold text-gray-900 mb-1">
             {totalAmount.toLocaleString()}원
           </div>
-          <p className="text-xs text-gray-500">해지일 | 2025.12.31</p>
         </div>
 
         {/* 진행률 바 */}
@@ -71,15 +76,17 @@ export default function HomePage() {
       <div className="grid grid-cols-2 gap-4">
         <StatCard
           title="오늘 절약"
-          value={`${todaySavings.toLocaleString()}원`}
+          value={`${todayTotalAmount.toLocaleString()}원`}
           icon="💰"
-          trend={todaySavings > 0 ? `+${todaySavings.toLocaleString()}` : "0"}
+          trend={
+            todayTotalAmount > 0 ? `+${todayTotalAmount.toLocaleString()}` : "0"
+          }
         />
         <StatCard
           title="이번 달"
-          value={`${totalAmount.toLocaleString()}원`}
+          value={`${monthTotalAmount.toLocaleString()}원`}
           icon="📈"
-          trend={`${records.length}회 절약`}
+          trend={`${monthTotalCount}회 절약`}
         />
       </div>
 
@@ -87,12 +94,24 @@ export default function HomePage() {
       <div className="card p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-900">최근 절약</h3>
-          <Link to="/stats" className="text-xs text-brand-600">
-            전체보기
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/list"
+              className="text-xs text-brand-600 hover:text-brand-700"
+            >
+              전체보기
+            </Link>
+            <span className="text-xs text-gray-300">|</span>
+            <Link
+              to="/stats"
+              className="text-xs text-brand-600 hover:text-brand-700"
+            >
+              통계
+            </Link>
+          </div>
         </div>
 
-        {records.length === 0 ? (
+        {latestRecords?.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-2">🎯</div>
             <p className="text-sm text-gray-500 mb-4">
@@ -104,7 +123,7 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {records.slice(0, 3).map((record) => (
+            {latestRecords?.map((record) => (
               <div
                 key={record.id}
                 className="flex items-center justify-between"

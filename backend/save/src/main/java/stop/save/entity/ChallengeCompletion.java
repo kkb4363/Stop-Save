@@ -10,7 +10,13 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "challenge_completions")
+@Table(name = "challenge_completions", 
+       uniqueConstraints = {
+           @UniqueConstraint(
+               name = "uk_user_challenge_period_date", 
+               columnNames = {"user_id", "challenge_id", "period", "completed_date"}
+           )
+       })
 @Getter
 @Setter
 @NoArgsConstructor
@@ -42,6 +48,10 @@ public class ChallengeCompletion {
     @Column(name = "completed_at", nullable = false, updatable = false)
     private LocalDateTime completedAt;
 
+    // 날짜만 저장하는 컬럼 (유니크 제약조건용)
+    @Column(name = "completed_date", nullable = false)
+    private java.time.LocalDate completedDate;
+
     public enum ChallengePeriod {
         DAILY, WEEKLY, MONTHLY
     }
@@ -53,5 +63,6 @@ public class ChallengeCompletion {
         this.challengeTitle = challengeTitle;
         this.period = period;
         this.rewardAmount = rewardAmount;
+        this.completedDate = java.time.LocalDate.now();
     }
 }

@@ -6,10 +6,13 @@ import stop.save.repository.SavingRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import stop.save.repository.SavingRecordRepository2;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -19,7 +22,12 @@ public class SavingRecordService {
     private SavingRecordRepository savingRecordRepository;
 
     @Autowired
+    private SavingRecordRepository2 savingRecordRepository2;
+
+    @Autowired
     private UserService userService;
+
+
 
     // 절약 기록 등록
     public SavingRecord createSavingRecord(Long userId, String itemName, Long amount, String category, String memo) {
@@ -47,20 +55,54 @@ public class SavingRecordService {
         return savedRecord;
     }
 
-    // 사용자별 절약 기록 조회
-    public List<SavingRecord> getUserSavingRecords(Long userId) {
-        return savingRecordRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    // 오늘의 총 절약 금액
+    public Long getTodayTotalAmount(Long userId) {
+        List<SavingRecord> records = savingRecordRepository2.list(userId);
+        return records.stream().mapToLong(sr -> sr.getAmount()).sum();
     }
 
-    // 오늘의 절약 기록
-    public List<SavingRecord> getTodaySavingRecords(Long userId) {
-        return savingRecordRepository.findTodaySavingsByUserId(userId);
+    // 이번달 총 절약 금액
+    public Long getMonthTotalAmount(Long userId){
+        return filterMonthRecords(userId).mapToLong(sr -> sr.getAmount()).sum();
     }
 
-    // 이번 달 절약 기록
-    public List<SavingRecord> getThisMonthSavingRecords(Long userId) {
-        return savingRecordRepository.findThisMonthSavingsByUserId(userId);
+    // 이번달 절약 횟수
+    public Long getMonthTotalCount(Long userId){
+        return filterMonthRecords(userId).count();
     }
+
+    // 최근 3가지 절약 기록
+    public List<SavingRecord> getLatestRecords(Long userId){
+        List<SavingRecord> records = savingRecordRepository2.list(userId);
+        return records.stream().sorted((a,b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .limit(3).toList();
+
+    }
+
+    private Stream<SavingRecord> filterMonthRecords(Long userId){
+        LocalDateTime startOfMonth = LocalDateTime.now()
+                .withDayOfMonth(1)
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0);
+
+        LocalDateTime endOfMonth = startOfMonth.plusMonths(1);
+
+        List<SavingRecord> records = savingRecordRepository2.list(userId);
+
+        return records.stream().filter(sr -> {
+            LocalDateTime createdAt = sr.getCreatedAt();
+            return !createdAt.isBefore(startOfMonth) && createdAt.isBefore(endOfMonth);
+        });
+    }
+
+    // 총 절약 금액
+    public Long totalAmount(Long userId){
+        return savingRecordRepository2.list(userId).stream().mapToLong(sr -> sr.getAmount()).sum();
+    }
+
+
 
     // 총 절약 금액 조회
     public Long getTotalSavingsAmount(Long userId) {

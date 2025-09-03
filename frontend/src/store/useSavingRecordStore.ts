@@ -10,6 +10,10 @@ import { savingRecordService } from "../services/savingRecordService";
 interface SavingRecordState {
   records: SavingRecord[];
   todayRecords: SavingRecord[];
+  todayTotalAmount: number;
+  monthTotalAmount: number;
+  monthTotalCount: number;
+  latestRecords: SavingRecord[];
   monthRecords: SavingRecord[];
   totalAmount: number;
   categoryStats: CategoryStats[];
@@ -19,10 +23,12 @@ interface SavingRecordState {
   // 액션들
   createRecord: (request: SavingRecordRequest) => Promise<void>;
   fetchUserRecords: (userId: number) => Promise<void>;
-  fetchTodayRecords: (userId: number) => Promise<void>;
-  fetchMonthRecords: (userId: number) => Promise<void>;
+  fetchTodayAmount: (userId: number) => Promise<void>;
+  fetchMonthAmount: (userId: number) => Promise<void>;
+  fetchMonthCount: (userId: number) => Promise<void>;
   fetchTotalAmount: (userId: number) => Promise<void>;
   fetchCategoryStats: (userId: number) => Promise<void>;
+  fetchLatestRecords: (userId: number) => Promise<void>;
   deleteRecord: (recordId: number, userId: number) => Promise<void>;
   clearError: () => void;
   setLoading: (loading: boolean) => void;
@@ -34,6 +40,10 @@ export const useSavingRecordStore = create<SavingRecordState>()(
       records: [],
       todayRecords: [],
       monthRecords: [],
+      todayTotalAmount: 0,
+      monthTotalAmount: 0,
+      monthTotalCount: 0,
+      latestRecords: [],
       totalAmount: 0,
       categoryStats: [],
       isLoading: false,
@@ -54,8 +64,8 @@ export const useSavingRecordStore = create<SavingRecordState>()(
           });
 
           // 관련 데이터 새로고침
-          get().fetchTodayRecords(request.userId);
-          get().fetchMonthRecords(request.userId);
+          get().fetchTodayAmount(request.userId);
+          get().fetchMonthAmount(request.userId);
           get().fetchTotalAmount(request.userId);
           get().fetchCategoryStats(request.userId);
         } catch (error) {
@@ -91,24 +101,45 @@ export const useSavingRecordStore = create<SavingRecordState>()(
         }
       },
 
-      fetchTodayRecords: async (userId: number) => {
+      fetchTodayAmount: async (userId: number) => {
         try {
-          const todayRecords = await savingRecordService.getTodaySavingRecords(
-            userId
-          );
-          set({ todayRecords });
+          const todayTotalAmount =
+            await savingRecordService.getTodayTotalAmount(userId);
+          set({ todayTotalAmount });
         } catch (error) {
-          console.error("오늘의 절약 기록 조회 실패:", error);
+          console.error("오늘의 절약 총액 조회 실패:", error);
         }
       },
 
-      fetchMonthRecords: async (userId: number) => {
+      fetchMonthAmount: async (userId: number) => {
         try {
-          const monthRecords =
-            await savingRecordService.getThisMonthSavingRecords(userId);
-          set({ monthRecords });
+          const monthTotalAmount =
+            await savingRecordService.getMonthTotalAmount(userId);
+          set({ monthTotalAmount });
         } catch (error) {
-          console.error("이번 달 절약 기록 조회 실패:", error);
+          console.error("이번 달 절약 총액 조회 실패:", error);
+        }
+      },
+
+      fetchMonthCount: async (userId: number) => {
+        try {
+          const monthTotalCount = await savingRecordService.getMonthTotalCount(
+            userId
+          );
+          set({ monthTotalCount });
+        } catch (error) {
+          console.error("이번 달 절약 횟수 조회 실패:", error);
+        }
+      },
+
+      fetchLatestRecords: async (userId: number) => {
+        try {
+          const latestRecords = await savingRecordService.getLatestRecords(
+            userId
+          );
+          set({ latestRecords });
+        } catch (error) {
+          console.error("최근 절약 목록 조회 실패:", error);
         }
       },
 
@@ -146,8 +177,8 @@ export const useSavingRecordStore = create<SavingRecordState>()(
           });
 
           // 관련 데이터 새로고침
-          get().fetchTodayRecords(userId);
-          get().fetchMonthRecords(userId);
+          get().fetchTodayAmount(userId);
+          get().fetchMonthAmount(userId);
           get().fetchTotalAmount(userId);
           get().fetchCategoryStats(userId);
         } catch (error) {
