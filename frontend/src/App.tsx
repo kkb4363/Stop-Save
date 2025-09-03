@@ -4,7 +4,7 @@ import { useAuthStore } from "./store/useAuthStore";
 
 function App() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout, getCurrentUser } = useAuthStore();
+  const { user, isAuthenticated, getCurrentUser } = useAuthStore();
 
   // 페이지 로드 시 현재 사용자 정보 확인
   useEffect(() => {
@@ -18,17 +18,6 @@ function App() {
 
     checkAuth();
   }, [getCurrentUser]);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/login");
-    } catch (error) {
-      console.error("로그아웃 실패:", error);
-      // 에러가 발생해도 로그인 페이지로 이동
-      navigate("/login");
-    }
-  };
 
   return (
     <div className="min-h-full bg-gray-50">
