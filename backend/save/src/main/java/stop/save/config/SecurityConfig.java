@@ -18,7 +18,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Value("${OAUTH_URL_BUILD}")
+    @Value("${OAUTH_URL_BUILD2}")
     private String oauthUrlBuild;
 
     @Bean
@@ -55,7 +55,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("https://stop-save.vercel.app"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("https://651f81414594.ngrok-free.app/"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
