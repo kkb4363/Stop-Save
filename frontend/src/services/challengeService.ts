@@ -1,6 +1,6 @@
 import type { Challenge } from "../types/user";
 
-const API_BASE_URL = "http://localhost:8080/api/challenges";
+const API_BASE_URL = "https://651f81414594.ngrok-free.app/api/challenges";
 
 class ChallengeService {
   // 모든 활성 챌린지 조회
