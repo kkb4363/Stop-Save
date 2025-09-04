@@ -33,14 +33,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // 사용자 로그인 (간단한 버전)
-    public Optional<User> loginUser(String username, String password) {
-        Optional<User> user = userRepository.findByUsername(username);
-        if (user.isPresent() && user.get().getPassword().equals(password)) {
-            return user;
-        }
-        return Optional.empty();
-    }
+
 
     // 사용자 정보 조회
     public Optional<User> getUserById(Long id) {

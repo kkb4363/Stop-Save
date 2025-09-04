@@ -1,17 +1,16 @@
 package stop.save.controller;
 
+import stop.save.dto.SavingRecordDto;
 import stop.save.entity.SavingRecord;
 import stop.save.service.SavingRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Collections;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/savings")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = "https://stop-save.vercel.app", allowCredentials = "true")
 public class SavingRecordController {
 
     @Autowired
@@ -19,7 +18,7 @@ public class SavingRecordController {
 
     // 절약 기록 등록
     @PostMapping("/record")
-    public ResponseEntity<?> createSavingRecord(@RequestBody SavingRecordRequest request) {
+    public ResponseEntity<?> createSavingRecord(@RequestBody SavingRecordDto request) {
         try {
             SavingRecord record = savingRecordService.createSavingRecord(
                     request.getUserId(),
@@ -57,8 +56,12 @@ public class SavingRecordController {
 
     // 최근 3가지 절약 기록
     @GetMapping("/latest/{userId}")
-    public ResponseEntity<List<SavingRecord>> getLatestRecords(@PathVariable Long userId){
-        List<SavingRecord> results = savingRecordService.getLatestRecords(userId);
+    public ResponseEntity<List<SavingRecordDto>> getLatestRecords(@PathVariable Long userId){
+        List<SavingRecord> records = savingRecordService.getLatestRecords(userId);
+
+        List<SavingRecordDto> results = records.stream().map(r -> SavingRecordDto.builder()
+                        .id(r.getId()).itemName(r.getItemName()).amount(r.getAmount()).category(r.getCategory()).memo(r.getMemo()).createdAt(r.getCreatedAt()).build())
+                .toList();
 
         return ResponseEntity.ok(results);
     }
@@ -95,28 +98,5 @@ public class SavingRecordController {
         }
     }
 
-    // 절약 기록 등록 요청 DTO
-    public static class SavingRecordRequest {
-        private Long userId;
-        private String itemName;
-        private Long amount;
-        private String category;
-        private String memo;
 
-        // Getter, Setter
-        public Long getUserId() { return userId; }
-        public void setUserId(Long userId) { this.userId = userId; }
-
-        public String getItemName() { return itemName; }
-        public void setItemName(String itemName) { this.itemName = itemName; }
-
-        public Long getAmount() { return amount; }
-        public void setAmount(Long amount) { this.amount = amount; }
-
-        public String getCategory() { return category; }
-        public void setCategory(String category) { this.category = category; }
-
-        public String getMemo() { return memo; }
-        public void setMemo(String memo) { this.memo = memo; }
-    }
 }

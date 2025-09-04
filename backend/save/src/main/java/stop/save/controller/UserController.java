@@ -16,41 +16,11 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true") // React 앱과 연동
+@CrossOrigin(origins = "https://stop-save.vercel.app", allowCredentials = "true") // React 앱과 연동
 public class UserController {
 
     @Autowired
     private UserService userService;
-
-    // ========== 기존 일반 회원가입/로그인 기능 ==========
-
-    // 사용자 회원가입
-    @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user) {
-        try {
-            User registeredUser = userService.registerUser(user);
-            return ResponseEntity.ok(createUserResponse(registeredUser));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        }
-    }
-
-    // 일반 로그인
-    @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody LoginRequest loginRequest, HttpServletRequest request) {
-        Optional<User> userOpt = userService.loginUser(loginRequest.getUsername(), loginRequest.getPassword());
-
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            // 세션에 사용자 정보 저장
-            HttpSession session = request.getSession();
-            session.setAttribute("user", user);
-
-            return ResponseEntity.ok(createUserResponse(user));
-        } else {
-            return ResponseEntity.status(401).body(Map.of("error", "아이디 또는 비밀번호가 잘못되었습니다."));
-        }
-    }
 
     // ========== OAuth2 구글 로그인 기능 ==========
 

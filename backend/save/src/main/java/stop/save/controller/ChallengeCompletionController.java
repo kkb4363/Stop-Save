@@ -18,7 +18,7 @@ import java.util.Map;
 @RequestMapping("/api/challenges")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+@CrossOrigin(origins = "https://stop-save.vercel.app", allowCredentials = "true")
 public class ChallengeCompletionController {
 
     private final ChallengeCompletionService challengeCompletionService;

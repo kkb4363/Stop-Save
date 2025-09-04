@@ -5,10 +5,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
+@Getter @Setter @AllArgsConstructor @NoArgsConstructor
 @Entity @Table(name = "saving_records") @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class SavingRecord {
 
@@ -31,27 +35,6 @@ public class SavingRecord {
     @ManyToOne(fetch = FetchType.LAZY) @JsonIgnore
     @JoinColumn(name = "user_id")
     private User user;
-
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
-
-    public String getItemName() { return itemName; }
-    public void setItemName(String itemName) { this.itemName = itemName; }
-
-    public Long getAmount() { return amount; }
-    public void setAmount(Long amount) { this.amount = amount; }
-
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-
-    public String getMemo() { return memo; }
-    public void setMemo(String memo) { this.memo = memo; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
 
     @Override
     public String toString() {

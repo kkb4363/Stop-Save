@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
+import stop.save.dto.SavingRecordDto;
 import stop.save.entity.SavingRecord;
 
 import java.util.List;
@@ -18,7 +19,7 @@ class SavingRecordControllerTest {
 
     @Test
     void getLatestRecords() {
-        ResponseEntity<List<SavingRecord>> test = sv.getLatestRecords(2L);
+        ResponseEntity<List<SavingRecordDto>> test = sv.getLatestRecords(2L);
         System.out.println(test);
     }
 

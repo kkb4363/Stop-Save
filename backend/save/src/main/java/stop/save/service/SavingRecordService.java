@@ -1,5 +1,6 @@
 package stop.save.service;
 
+import stop.save.dto.SavingRecordDto;
 import stop.save.entity.SavingRecord;
 import stop.save.entity.User;
 import stop.save.repository.SavingRecordRepository;
@@ -71,10 +72,12 @@ public class SavingRecordService {
 
     // 최근 3가지 절약 기록
     public List<SavingRecord> getLatestRecords(Long userId){
-        List<SavingRecord> records = savingRecordRepository2.list(userId);
-        return records.stream().sorted((a,b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+        List<SavingRecord> records = savingRecordRepository2.list(userId)
+                .stream()
+                .sorted((a,b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                 .limit(3).toList();
 
+        return records;
     }
 
     private Stream<SavingRecord> filterMonthRecords(Long userId){

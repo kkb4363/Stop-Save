@@ -1,5 +1,7 @@
 package stop.save.config;
 
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,6 +18,9 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value("${OAUTH_URL_BUILD}")
+    private String oauthUrlBuild;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -26,21 +31,21 @@ public class SecurityConfig {
                         .anyRequest().permitAll() // 개발 단계에서는 모든 요청 허용
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .defaultSuccessUrl("http://localhost:5173/", true) // React 앱으로 리다이렉트
-                        .failureUrl("http://localhost:5173/login?error=oauth2_error")
+                        .defaultSuccessUrl(oauthUrlBuild, true) // React 앱으로 리다이렉트
+                        .failureUrl(oauthUrlBuild+"login?error=oauth2_error")
                         .authorizationEndpoint(authorization -> authorization
                                 .baseUri("/oauth2/authorization")) // OAuth2 인증 시작점
                 )
                 .logout(logout -> logout
                         .logoutUrl("/api/users/logout")
-                        .logoutSuccessUrl("http://localhost:5173/")
+                        .logoutSuccessUrl(oauthUrlBuild)
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID")
                 );
 
         // H2 콘솔을 위한 설정 - 최신 방식으로 수정
         http.headers(headers -> headers
-                .frameOptions(frameOptions -> frameOptions.disable()) // 이 부분만 남기면 됩니다
+                .frameOptions(frameOptions -> frameOptions.disable())
                 .contentTypeOptions(contentTypeOptions -> contentTypeOptions.disable())
         );
 
@@ -50,7 +55,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("https://stop-save.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
