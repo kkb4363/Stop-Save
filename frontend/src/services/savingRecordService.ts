@@ -4,7 +4,7 @@ import type {
   CategoryStats,
 } from "../types/user";
 
-const API_BASE_URL = "https://651f81414594.ngrok-free.app/api/savings";
+const API_BASE_URL = "http://localhost:8080/api/savings";
 
 class SavingRecordService {
   // 절약 기록 등록
