@@ -49,7 +49,11 @@ export default function RecordPage() {
       setIsSubmitting(false);
 
       // 홈으로 이동
-      navigate("/");
+      navigate("/", {
+        state: {
+          success: true,
+        },
+      });
     } catch (error) {
       console.error("절약 기록 등록 실패:", error);
       setIsSubmitting(false);

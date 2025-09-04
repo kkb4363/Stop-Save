@@ -10,6 +10,9 @@ import ListPage from "./pages/ListPage.tsx";
 import ChallengesPage from "./pages/ChallengesPage.tsx";
 import SettingsPage from "./pages/SettingsPage.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage.tsx";
+import TermsOfServicePage from "./pages/TermsOfServicePage.tsx";
+import ContactPage from "./pages/ContactPage.tsx";
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
 
 const router = createBrowserRouter([
@@ -64,6 +67,18 @@ const router = createBrowserRouter([
             <SettingsPage />
           </ProtectedRoute>
         ),
+      },
+      {
+        path: "privacy-policy",
+        element: <PrivacyPolicyPage />,
+      },
+      {
+        path: "terms-of-service",
+        element: <TermsOfServicePage />,
+      },
+      {
+        path: "contact",
+        element: <ContactPage />,
       },
     ],
   },

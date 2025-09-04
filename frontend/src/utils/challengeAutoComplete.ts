@@ -1,9 +1,9 @@
-import type { SavingRecord } from "../types/user";
-import { saveChallengeCompletion } from "./challengeStorage";
+import type { SavingRecord, Challenge } from "../types/user";
 import { challengeCompletionService } from "../services/challengeCompletionService";
+import { challengeService } from "../services/challengeService";
 
-// 챌린지 타입 정의
-interface Challenge {
+// 로컬 챌린지 타입 정의 (기존 로직과 호환성 유지)
+interface LocalChallenge {
   id: string;
   title: string;
   reward: number;
@@ -14,71 +14,49 @@ interface Challenge {
   period: "daily" | "weekly" | "monthly";
 }
 
-// 챌린지 정의 (기존 챌린지들을 확장)
-export const CHALLENGES: Challenge[] = [
-  // 일일 챌린지
-  {
-    id: "coffee",
-    title: "커피 한 잔 참기",
-    reward: 4500,
-    icon: "☕",
-    description: "오늘 하루 커피를 마시지 않기",
-    category: "음식",
-    amount: 4500,
-    period: "daily",
-  },
-  {
-    id: "taxi",
-    title: "택시 대신 대중교통",
-    reward: 10000,
-    icon: "🚕",
-    description: "택시 대신 지하철/버스 이용하기",
-    category: "교통",
-    amount: 10000,
-    period: "daily",
-  },
+// 백엔드에서 활성 챌린지 목록 가져오기
+export const getActiveChallenges = async (): Promise<Challenge[]> => {
+  try {
+    return await challengeService.getActiveChallenges();
+  } catch (error) {
+    console.error("활성 챌린지 목록을 가져오는데 실패했습니다:", error);
+    return [];
+  }
+};
 
-  // 주간 챌린지
-  {
-    id: "delivery",
-    title: "배달음식 0회",
-    reward: 20000,
-    icon: "🍕",
-    description: "이번 주 배달음식 주문하지 않기",
-    category: "음식",
-    amount: 20000,
-    period: "weekly",
-  },
-  {
-    id: "shopping",
-    title: "충동구매 참기",
-    reward: 30000,
-    icon: "🛍️",
-    description: "계획에 없던 쇼핑 참기",
-    category: "쇼핑",
-    amount: 30000,
-    period: "weekly",
-  },
+// 백엔드 챌린지를 로컬 챌린지 형태로 변환 (기존 로직 호환성 유지)
+const convertToLocalChallenge = (challenge: Challenge): LocalChallenge => {
+  // 기간을 일수 기준으로 변환
+  let period: "daily" | "weekly" | "monthly" = "daily";
+  if (challenge.duration <= 1) {
+    period = "daily";
+  } else if (challenge.duration <= 7) {
+    period = "weekly";
+  } else {
+    period = "monthly";
+  }
 
-  // 월간 챌린지
-  {
-    id: "target",
-    title: "10만원 절약하기",
-    reward: 100000,
-    icon: "🎯",
-    description: "한 달간 10만원 이상 절약하기",
-    amount: 100000,
-    period: "monthly",
-  },
-  {
-    id: "streak",
-    title: "30일 연속 절약",
-    reward: 50000,
-    icon: "🔥",
-    description: "30일 연속으로 절약 기록하기",
-    period: "monthly",
-  },
-];
+  return {
+    id: challenge.id.toString(),
+    title: challenge.title,
+    reward: challenge.experienceReward,
+    icon: getIconForChallenge(challenge.title), // 제목 기반으로 아이콘 매핑
+    description: challenge.description,
+    amount: challenge.targetAmount,
+    period: period,
+  };
+};
+
+// 챌린지 제목 기반으로 아이콘 매핑
+const getIconForChallenge = (title: string): string => {
+  if (title.includes("커피")) return "☕";
+  if (title.includes("택시") || title.includes("교통")) return "🚕";
+  if (title.includes("배달") || title.includes("음식")) return "🍕";
+  if (title.includes("쇼핑") || title.includes("구매")) return "🛍️";
+  if (title.includes("목표") || title.includes("절약")) return "🎯";
+  if (title.includes("연속") || title.includes("스트릭")) return "🔥";
+  return "🏆"; // 기본 아이콘
+};
 
 // 기간별 레코드 필터링
 const getRecordsByPeriod = (
@@ -160,95 +138,123 @@ const pendingCompletions = new Set<string>();
 export const checkAndCompleteAutoChallenges = async (
   records: SavingRecord[],
   userId: number,
-  onChallengeCompleted?: (challengeId: string, challenge: Challenge) => void
+  onChallengeCompleted?: (
+    challengeId: string,
+    challenge: LocalChallenge
+  ) => void
 ): Promise<string[]> => {
   const completedChallenges: string[] = [];
 
-  for (const challenge of CHALLENGES) {
-    try {
-      let isCompleted = false;
-      const periodRecords = getRecordsByPeriod(records, challenge.period);
+  try {
+    // 백엔드에서 활성 챌린지 목록 가져오기
+    const backendChallenges = await getActiveChallenges();
+    const localChallenges = backendChallenges.map(convertToLocalChallenge);
 
-      switch (challenge.id) {
-        case "coffee":
-        case "snack":
-        case "taxi":
-        case "delivery":
-        case "shopping":
-          // 특정 카테고리와 금액으로 챌린지 완료 확인
-          if (challenge.category && challenge.amount) {
-            const categoryAmount = periodRecords
-              .filter((record) => record.category === challenge.category)
-              .reduce((sum, record) => sum + record.amount, 0);
+    for (const challenge of localChallenges) {
+      try {
+        let isCompleted = false;
+        const periodRecords = getRecordsByPeriod(records, challenge.period);
 
-            isCompleted = categoryAmount >= challenge.amount;
+        // 챌린지 완료 조건 확인 - 백엔드 챌린지는 targetAmount 기준으로 판단
+        if (challenge.amount) {
+          if (challenge.period === "monthly") {
+            // 월간 챌린지: 기간 내 총 절약 금액
+            const totalAmount = periodRecords.reduce(
+              (sum, record) => sum + record.amount,
+              0
+            );
+            isCompleted = totalAmount >= challenge.amount;
+          } else if (challenge.period === "weekly") {
+            // 주간 챌린지: 기간 내 총 절약 금액
+            const totalAmount = periodRecords.reduce(
+              (sum, record) => sum + record.amount,
+              0
+            );
+            isCompleted = totalAmount >= challenge.amount;
+          } else {
+            // 일일 챌린지: 오늘 절약 금액
+            const dailyAmount = periodRecords.reduce(
+              (sum, record) => sum + record.amount,
+              0
+            );
+            isCompleted = dailyAmount >= challenge.amount;
           }
-          break;
-
-        case "target": {
-          // 월간 목표 금액 달성
-          const monthlyTotal = periodRecords.reduce(
-            (sum, record) => sum + record.amount,
-            0
-          );
-          isCompleted = monthlyTotal >= 100000;
-          break;
+        } else {
+          // 금액이 없는 챌린지 (예: 연속 기록)
+          if (challenge.title.includes("연속")) {
+            const consecutiveDays = getConsecutiveDays(records);
+            isCompleted = consecutiveDays >= 30;
+          } else {
+            // 기본적으로 기간 내 기록이 있으면 완료
+            isCompleted = periodRecords.length > 0;
+          }
         }
 
-        case "streak": {
-          // 30일 연속 기록
-          const consecutiveDays = getConsecutiveDays(records);
-          isCompleted = consecutiveDays >= 30;
-          break;
-        }
+        if (isCompleted) {
+          const completionKey = `${userId}-${challenge.id}-${challenge.period}`;
 
-        default:
-          break;
+          // 이미 진행 중인 요청이 있으면 스킵
+          if (pendingCompletions.has(completionKey)) {
+            console.log(`⏳ 챌린지 "${challenge.title}" 이미 처리 중...`);
+            continue;
+          }
+
+          // 백엔드에서 이미 완료된 챌린지인지 확인
+          try {
+            const statusResponse =
+              await challengeCompletionService.getChallengeStatus(
+                challenge.id,
+                challenge.period
+              );
+
+            if (statusResponse.isCompleted) {
+              console.log(`✅ 챌린지 "${challenge.title}" 이미 완료됨`);
+              continue;
+            }
+          } catch (error) {
+            console.error(`챌린지 상태 확인 실패: ${challenge.title}`, error);
+            // 상태 확인 실패 시 계속 진행
+          }
+
+          completedChallenges.push(challenge.id);
+
+          // 백엔드에 완료 상태 저장
+          pendingCompletions.add(completionKey);
+
+          try {
+            await challengeCompletionService.completeChallenge({
+              challengeId: challenge.id,
+              challengeTitle: challenge.title,
+              period: challenge.period,
+              rewardAmount: challenge.reward,
+            });
+            console.log(`✅ 챌린지 "${challenge.title}" 완료 저장 성공`);
+          } catch (error) {
+            console.error(
+              `❌ 챌린지 "${challenge.title}" 완료 저장 실패:`,
+              error
+            );
+            // 저장 실패 시 완료 목록에서 제거
+            const index = completedChallenges.indexOf(challenge.id);
+            if (index > -1) {
+              completedChallenges.splice(index, 1);
+            }
+          } finally {
+            // 요청 완료 후 추적에서 제거
+            pendingCompletions.delete(completionKey);
+          }
+
+          // 콜백 함수 호출 (알림 등을 위해)
+          if (onChallengeCompleted) {
+            onChallengeCompleted(challenge.id, challenge);
+          }
+        }
+      } catch (error) {
+        console.error(`챌린지 ${challenge.id} 자동 완료 확인 실패:`, error);
       }
-
-      if (isCompleted) {
-        const completionKey = `${userId}-${challenge.id}-${challenge.period}`;
-
-        // 이미 진행 중인 요청이 있으면 스킵
-        if (pendingCompletions.has(completionKey)) {
-          console.log(`⏳ 챌린지 "${challenge.title}" 이미 처리 중...`);
-          continue;
-        }
-
-        // 로컬스토리지에 완료 상태 저장
-        saveChallengeCompletion(challenge.id, challenge.period, userId);
-        completedChallenges.push(challenge.id);
-
-        // 백엔드에 완료 상태 저장 (중복 방지)
-        pendingCompletions.add(completionKey);
-
-        try {
-          await challengeCompletionService.completeChallenge({
-            challengeId: challenge.id,
-            challengeTitle: challenge.title,
-            period: challenge.period,
-            rewardAmount: challenge.reward,
-          });
-          console.log(`✅ 챌린지 "${challenge.title}" 백엔드에 저장 완료`);
-        } catch (error) {
-          console.error(
-            `❌ 챌린지 "${challenge.title}" 백엔드 저장 실패:`,
-            error
-          );
-          // 백엔드 저장 실패해도 로컬 완료 상태는 유지
-        } finally {
-          // 요청 완료 후 추적에서 제거
-          pendingCompletions.delete(completionKey);
-        }
-
-        // 콜백 함수 호출 (알림 등을 위해)
-        if (onChallengeCompleted) {
-          onChallengeCompleted(challenge.id, challenge);
-        }
-      }
-    } catch (error) {
-      console.error(`챌린지 ${challenge.id} 자동 완료 확인 실패:`, error);
     }
+  } catch (error) {
+    console.error("챌린지 목록을 가져오는데 실패했습니다:", error);
   }
 
   return completedChallenges;

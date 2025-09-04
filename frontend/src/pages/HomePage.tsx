@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
-import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useSavingRecordStore } from "../store/useSavingRecordStore";
+import ReactConfetti from "react-confetti";
 
 export default function HomePage() {
   const { user } = useAuthStore();
@@ -35,14 +36,36 @@ export default function HomePage() {
     fetchTotalAmount,
   ]);
 
+  const { state } = useLocation();
+  const success = state?.success;
+  const [isSuccess, setIsSuccess] = useState(false);
+
   // 사용자 레벨과 경험치 (백엔드 데이터 사용)
   const level = user?.level || 1;
   const experience = user?.experience || 0;
   const nextLevelXP = Math.max(0, level * 100 - experience);
   const progressPercent = (experience / (level * 100)) * 100;
 
+  useEffect(() => {
+    if (success) {
+      setIsSuccess(true);
+      setTimeout(() => {
+        setIsSuccess(false);
+      }, 6000);
+    }
+  }, [success]);
+
   return (
     <div className="space-y-6 pt-6">
+      {isSuccess && (
+        <>
+          <ReactConfetti />
+          <div className="absolute top-[80px] right-0 left-0 flex items-center justify-center text-2xl font-bold text-[#0284c7] animate-pulse">
+            🎉 절약 등록이 완료됐어요~ 🎉
+          </div>
+        </>
+      )}
+
       {/* 메인 카드 */}
       <div className="card p-6 gradient-card">
         <div className="text-center">
