@@ -6,7 +6,7 @@ import type {
   UserResponse,
 } from "../types/user";
 
-const API_BASE_URL = "https://651f81414594.ngrok-free.app/api/users";
+const API_BASE_URL = "https://0c2606fadafd.ngrok-free.app/api/users";
 
 class UserService {
   // 사용자 회원가입
@@ -52,6 +52,9 @@ class UserService {
     const response = await fetch(`${API_BASE_URL}/me`, {
       method: "GET",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
