@@ -29,7 +29,6 @@ export default function LoginPage() {
     try {
       clearError();
       await loginWithGoogle();
-      // Google OAuth2 리다이렉트 후 백엔드에서 처리
     } catch (error) {
       console.error("Google 로그인 실패:", error);
     }

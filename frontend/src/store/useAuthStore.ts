@@ -10,7 +10,6 @@ interface AuthState {
   error: string | null;
 
   // 액션들
-  login: (username: string, password: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   getCurrentUser: () => Promise<void>;
@@ -29,30 +28,6 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       error: null,
 
-      login: async (username: string, password: string) => {
-        try {
-          set({ isLoading: true, error: null });
-          const userResponse = await userService.loginUser({
-            username,
-            password,
-          });
-
-          set({
-            user: userResponse,
-            isAuthenticated: true,
-            isLoading: false,
-            error: null,
-          });
-        } catch (error) {
-          set({
-            isLoading: false,
-            error:
-              error instanceof Error ? error.message : "로그인에 실패했습니다.",
-          });
-          throw error;
-        }
-      },
-
       loginWithGoogle: async () => {
         try {
           set({ isLoading: true, error: null });
@@ -60,7 +35,7 @@ export const useAuthStore = create<AuthState>()(
           // Google OAuth2 로그인을 위해 백엔드 OAuth2 엔드포인트로 리다이렉트
           // Spring Security OAuth2가 자동으로 처리하고, 성공 시 프론트엔드로 리다이렉트
           window.location.href =
-            "https://stop-save.vercel.app/login/oauth2/code/google";
+            "https://651f81414594.ngrok-free.app/oauth2/authorization";
         } catch (error) {
           set({
             isLoading: false,
