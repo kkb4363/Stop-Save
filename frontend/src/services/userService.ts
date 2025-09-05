@@ -51,6 +51,7 @@ class UserService {
   async getCurrentUser(): Promise<UserResponse> {
     const response = await fetch(`${API_BASE_URL}/me`, {
       method: "GET",
+      credentials: "include",
     });
 
     if (!response.ok) {
