@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://651f81414594.ngrok-free.app/api/challenges";
+const API_BASE_URL = "https://0c2606fadafd.ngrok-free.app/api/challenges";
 
 interface ChallengeCompletionRequest {
   challengeId: string;
