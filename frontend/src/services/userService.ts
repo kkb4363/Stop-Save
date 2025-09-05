@@ -52,6 +52,9 @@ class UserService {
     const response = await fetch(`${API_BASE_URL}/me`, {
       method: "GET",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
