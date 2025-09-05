@@ -37,14 +37,14 @@ public class SecurityConfig {
                     "/oauth2/**",
                     "/login/oauth2/**",
                     "/h2-console/**"
-            ).permitAll().anyRequest().permitAll())
+            ).permitAll().anyRequest().authenticated())
             // OAuth2 로그인 설정
             .oauth2Login(oauth2 -> oauth2
                         .defaultSuccessUrl(oauthUrlBuild, true)
                         .failureUrl(oauthUrlBuild + "login?error=oauth2_error")
                         .authorizationEndpoint(auth -> auth.baseUri("/oauth2/authorization")))
             // 로그아웃 설정
-            .logout(logout -> logout
+                        .logout(logout -> logout
                         .logoutUrl("/api/users/logout")
                         .logoutSuccessUrl(oauthUrlBuild)
                         .invalidateHttpSession(true)
@@ -58,7 +58,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList("https://stop-save.vercel.app"));
+        configuration.setAllowedOrigins(Arrays.asList("https://stop-save.vercel.app", "https://0c2606fadafd.ngrok-free.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
         // 모든 헤더 허용
