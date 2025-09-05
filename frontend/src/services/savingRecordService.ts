@@ -4,7 +4,8 @@ import type {
   CategoryStats,
 } from "../types/user";
 
-const API_BASE_URL = "https://0c2606fadafd.ngrok-free.app/api/savings";
+const API_BASE_URL =
+  "https://save-buddy-69f54793f2e7.herokuapp.com/api/savings";
 
 class SavingRecordService {
   // 절약 기록 등록

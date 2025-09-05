@@ -3,9 +3,10 @@ spring:
     name: savebuddy
 
   datasource:
-    url: jdbc:mysql://localhost:3306/savings_db?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
-    username: ${DB_NAME}
+    url: ${JAWSDB_URL:jdbc:mysql://localhost:3306/savings_db?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8}
+    username: ${DB_USERNAME:${DB_NAME}}
     password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:

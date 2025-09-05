@@ -6,7 +6,7 @@ import type {
   UserResponse,
 } from "../types/user";
 
-const API_BASE_URL = "https://0c2606fadafd.ngrok-free.app/api/users";
+const API_BASE_URL = "https://save-buddy-69f54793f2e7.herokuapp.com/api/users";
 
 class UserService {
   // 사용자 회원가입

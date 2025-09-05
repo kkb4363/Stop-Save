@@ -1,4 +1,5 @@
-const API_BASE_URL = "https://0c2606fadafd.ngrok-free.app/api/challenges";
+const API_BASE_URL =
+  "https://save-buddy-69f54793f2e7.herokuapp.com/api/challenges";
 
 interface ChallengeCompletionRequest {
   challengeId: string;

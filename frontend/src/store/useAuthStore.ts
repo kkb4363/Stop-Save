@@ -35,7 +35,7 @@ export const useAuthStore = create<AuthState>()(
           // Google OAuth2 로그인을 위해 백엔드 OAuth2 엔드포인트로 리다이렉트
           // Spring Security OAuth2가 자동으로 처리하고, 성공 시 프론트엔드로 리다이렉트
           window.location.href =
-            "https://0c2606fadafd.ngrok-free.app/oauth2/authorization/google";
+            "https://save-buddy-69f54793f2e7.herokuapp.com/oauth2/authorization/google";
         } catch (error) {
           set({
             isLoading: false,

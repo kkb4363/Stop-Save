@@ -58,7 +58,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(Arrays.asList("https://stop-save.vercel.app", "https://0c2606fadafd.ngrok-free.app"));
+        configuration.setAllowedOrigins(Arrays.asList("https://stop-save.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 
         // 모든 헤더 허용
