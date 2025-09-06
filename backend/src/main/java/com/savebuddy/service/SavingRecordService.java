@@ -132,11 +132,11 @@ public class SavingRecordService {
     }
 
     // 절약 기록 삭제
-    public void deleteSavingRecord(Long recordId, Long userId) {
+    public void deleteSavingRecord(Long recordId, String email) {
         Optional<SavingRecord> recordOpt = savingRecordRepository.findById(recordId);
         if (recordOpt.isPresent()) {
             SavingRecord record = recordOpt.get();
-            if (record.getUser().getId().equals(userId)) {
+            if (record.getUser().getEmail().equals(email)) {
                 savingRecordRepository.delete(record);
             } else {
                 throw new RuntimeException("권한이 없습니다.");

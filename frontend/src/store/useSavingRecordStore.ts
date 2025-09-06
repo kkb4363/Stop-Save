@@ -27,7 +27,7 @@ interface SavingRecordState {
   fetchCategoryStats: () => Promise<void>;
   fetchLatestRecords: () => Promise<void>;
   fetchAllRecords: () => Promise<void>;
-  // deleteRecord: (recordId: number, userId: number) => Promise<void>;
+  deleteRecord: (recordId: number) => Promise<void>;
   clearError: () => void;
   setLoading: (loading: boolean) => void;
 }
@@ -144,34 +144,53 @@ export const useSavingRecordStore = create<SavingRecordState>()(
         }
       },
 
-      // deleteRecord: async (recordId: number, userId: number) => {
-      //   try {
-      //     set({ isLoading: true, error: null });
-      //     await savingRecordService.deleteSavingRecord(recordId, userId);
+      deleteRecord: async (recordId: number) => {
+        try {
+          set({ isLoading: true, error: null });
+          await savingRecordService.deleteSavingRecord(recordId);
 
-      //     // 기존 기록에서 삭제된 기록 제거
-      //     const currentRecords = get().records;
-      //     set({
-      //       records: currentRecords.filter((record) => record.id !== recordId),
-      //       isLoading: false,
-      //     });
+          // 기존 기록에서 삭제된 기록 제거
+          const currentRecords = get().records;
+          const currentLatestRecords = get().latestRecords;
+          set({
+            records: currentRecords.filter((record) => record.id !== recordId),
+            latestRecords: currentLatestRecords.filter(
+              (record) => record.id !== recordId
+            ),
+            isLoading: false,
+          });
 
-      //     // 관련 데이터 새로고침
-      //     get().fetchTodayAmount(userId);
-      //     get().fetchMonthRecords(userId);
-      //     get().fetchTotalAmount(userId);
-      //     get().fetchCategoryStats(userId);
-      //   } catch (error) {
-      //     set({
-      //       isLoading: false,
-      //       error:
-      //         error instanceof Error
-      //           ? error.message
-      //           : "절약 기록 삭제에 실패했습니다.",
-      //     });
-      //     throw error;
-      //   }
-      // },
+          // 관련 데이터들을 새로고침
+          const actions = get();
+          await Promise.all([
+            actions.fetchTodayRecords(),
+            actions.fetchMonthRecords(),
+            actions.fetchLatestRecords(),
+            actions.fetchWeekRecords(),
+            actions.fetchCategoryStats(),
+            actions.fetchAllRecords(),
+          ]);
+
+          // 사용자 정보도 새로고침 (totalSavings 업데이트)
+          try {
+            await useAuthStore.getState().getCurrentUser();
+            console.log("✅ 삭제 후 사용자 정보 새로고침 완료");
+          } catch (error) {
+            console.warn("⚠️ 사용자 정보 새로고침 실패:", error);
+          }
+
+          console.log("✅ 절약 기록 삭제 후 모든 데이터 새로고침 완료");
+        } catch (error) {
+          set({
+            isLoading: false,
+            error:
+              error instanceof Error
+                ? error.message
+                : "절약 기록 삭제에 실패했습니다.",
+          });
+          throw error;
+        }
+      },
 
       clearError: () => set({ error: null }),
       setLoading: (loading: boolean) => set({ isLoading: loading }),

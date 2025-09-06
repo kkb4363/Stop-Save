@@ -2,13 +2,63 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useSavingRecordStore } from "../store/useSavingRecordStore";
 import { Link } from "react-router-dom";
+import type { SavingRecord } from "../types/user";
 
 export default function ListPage() {
   const { user } = useAuthStore();
-  const { records, fetchAllRecords } = useSavingRecordStore();
+  const { records, fetchAllRecords, deleteRecord, isLoading } =
+    useSavingRecordStore();
 
   const [sortBy, setSortBy] = useState<"date" | "amount" | "category">("date");
   const [filterCategory, setFilterCategory] = useState<string>("전체");
+
+  // 삭제 관련 상태
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [recordToDelete, setRecordToDelete] = useState<SavingRecord | null>(
+    null
+  );
+
+  // 길게 누르기 관련 상태
+  const [longPressTimer, setLongPressTimer] = useState<number | null>(null);
+
+  // 길게 누르기 시작
+  const handleLongPressStart = (record: SavingRecord) => {
+    const timer = setTimeout(() => {
+      setRecordToDelete(record);
+      setShowDeleteModal(true);
+      navigator.vibrate?.(100); // 진동 피드백 (지원하는 기기에서)
+    }, 1000); // 1초
+    setLongPressTimer(timer);
+  };
+
+  // 길게 누르기 종료
+  const handleLongPressEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  // 삭제 확인
+  const handleDeleteConfirm = async () => {
+    if (!recordToDelete) return;
+
+    try {
+      await deleteRecord(recordToDelete.id);
+      setShowDeleteModal(false);
+      setRecordToDelete(null);
+      console.log("✅ 절약 기록 삭제 완료");
+    } catch (error) {
+      console.error("❌ 절약 기록 삭제 실패:", error);
+      alert("절약 기록 삭제에 실패했습니다.");
+    }
+  };
+
+  // 삭제 취소
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+    setRecordToDelete(null);
+  };
 
   // 사용자 데이터 로드
   useEffect(() => {
@@ -16,6 +66,15 @@ export default function ListPage() {
       fetchAllRecords();
     }
   }, [user?.id, fetchAllRecords]);
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+      }
+    };
+  }, [longPressTimer]);
 
   // 카테고리 목록 추출
   const categories = [
@@ -179,7 +238,13 @@ export default function ListPage() {
                 {monthRecords.map((record) => (
                   <div
                     key={record.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer select-none"
+                    onMouseDown={() => handleLongPressStart(record)}
+                    onMouseUp={handleLongPressEnd}
+                    onMouseLeave={handleLongPressEnd}
+                    onTouchStart={() => handleLongPressStart(record)}
+                    onTouchEnd={handleLongPressEnd}
+                    onTouchCancel={handleLongPressEnd}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
@@ -217,6 +282,49 @@ export default function ListPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {showDeleteModal && recordToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-4">🗑️</div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                절약 기록을 삭제하시겠습니까?
+              </h3>
+              <div className="text-sm text-gray-600 mb-2">
+                <strong>
+                  {recordToDelete.memo || recordToDelete.itemName}
+                </strong>
+              </div>
+              <div className="text-sm text-gray-500">
+                {recordToDelete.amount.toLocaleString()}원 ·{" "}
+                {recordToDelete.category}
+              </div>
+              <p className="text-xs text-gray-400 mt-3">
+                이 작업은 되돌릴 수 없습니다.
+              </p>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={handleDeleteCancel}
+                disabled={isLoading}
+                className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              >
+                취소
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                disabled={isLoading}
+                className="flex-1 py-3 px-4 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? "삭제 중..." : "삭제"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

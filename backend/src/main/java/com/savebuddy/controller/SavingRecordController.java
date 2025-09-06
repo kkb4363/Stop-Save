@@ -203,10 +203,16 @@ public class SavingRecordController {
     }
 
     // 절약 기록 삭제
-    @DeleteMapping("/{recordId}/user/{userId}")
-    public ResponseEntity<?> deleteSavingRecord(@PathVariable Long recordId, @PathVariable Long userId) {
+    @DeleteMapping("/{recordId}")
+    public ResponseEntity<?> deleteSavingRecord(@PathVariable Long recordId, Authentication authentication) {
         try {
-            savingRecordService.deleteSavingRecord(recordId, userId);
+            String email = getEmailFromAuthentication(authentication);
+            if (email == null) {
+                return ResponseEntity.status(401)
+                        .body(Map.of("error", "Unauthorized", "message", "Authentication required"));
+            }
+
+            savingRecordService.deleteSavingRecord(recordId, email);
             return ResponseEntity.ok("절약 기록이 삭제되었습니다.");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

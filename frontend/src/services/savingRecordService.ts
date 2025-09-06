@@ -97,10 +97,8 @@ class SavingRecordService {
   }
 
   // 절약 기록 삭제
-  async deleteSavingRecord(recordId: number, userId: number): Promise<void> {
-    const response = await apiClient.delete(
-      `${API_BASE_URL}/${recordId}/user/${userId}`
-    );
+  async deleteSavingRecord(recordId: number): Promise<void> {
+    const response = await apiClient.delete(`${API_BASE_URL}/${recordId}`);
 
     if (!response.ok) {
       const errorData = await response.text();
