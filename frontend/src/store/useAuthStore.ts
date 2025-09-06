@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User } from "../types/user";
 import { userService } from "../services/userService";
+import { tokenStorage } from "../utils/tokenStorage";
 import { API_BASE_URL_BUILD } from "../constants/api";
 
 interface AuthState {
@@ -54,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
           await userService.logout();
 
           // JWT 토큰 제거
-          localStorage.removeItem("jwt_token");
+          tokenStorage.removeToken();
           console.log("🔑 JWT 토큰 제거됨");
 
           set({
@@ -72,7 +73,7 @@ export const useAuthStore = create<AuthState>()(
                 : "로그아웃에 실패했습니다.",
           });
           // 에러가 발생해도 로컬 상태는 클리어
-          localStorage.removeItem("jwt_token");
+          tokenStorage.removeToken();
           set({
             user: null,
             isAuthenticated: false,

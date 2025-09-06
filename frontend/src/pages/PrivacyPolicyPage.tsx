@@ -186,7 +186,7 @@ export default function PrivacyPolicyPage() {
 
           <div className="bg-blue-50 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <strong>본 방침은 2024년 1월 1일부터 시행됩니다.</strong>
+              <strong>본 방침은 2025년 9월 5일부터 시행됩니다.</strong>
             </p>
           </div>
 
@@ -207,4 +207,3 @@ export default function PrivacyPolicyPage() {
     </div>
   );
 }
-

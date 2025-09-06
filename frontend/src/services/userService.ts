@@ -1,5 +1,6 @@
 import { API_BASE_URL_BUILD } from "../constants/api";
 import { apiClient } from "../utils/apiClient";
+import { tokenStorage } from "../utils/tokenStorage";
 import type {
   User,
   LoginRequest,
@@ -51,17 +52,37 @@ class UserService {
 
   // 현재 로그인된 사용자 정보 조회
   async getCurrentUser(): Promise<UserResponse> {
+    console.log("🔄 getCurrentUser 시작");
+
     // URL에서 JWT 토큰 확인 및 저장
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get("token");
 
+    console.log("🔍 URL 토큰 체크:", {
+      url: window.location.href,
+      hasTokenParam: !!token,
+      tokenPreview: token ? token.substring(0, 20) + "..." : null,
+    });
+
     if (token) {
-      localStorage.setItem("jwt_token", token);
-      console.log("🔑 JWT 토큰 저장:", token.substring(0, 20) + "...");
+      try {
+        tokenStorage.setToken(token);
+        console.log("🔑 JWT 토큰 저장 성공:", token.substring(0, 20) + "...");
+
+        // 저장 확인
+        const savedToken = tokenStorage.getToken();
+        console.log("✅ 저장 확인:", !!savedToken);
+      } catch (error) {
+        console.error("❌ 토큰 저장 실패:", error);
+      }
     }
 
-    // localStorage에서 토큰 가져오기
-    const storedToken = localStorage.getItem("jwt_token");
+    // 안전한 방법으로 토큰 가져오기
+    const storedToken = tokenStorage.getToken();
+    console.log("📱 저장된 토큰 조회:", {
+      hasStoredToken: !!storedToken,
+      tokenPreview: storedToken ? storedToken.substring(0, 20) + "..." : null,
+    });
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
@@ -70,7 +91,12 @@ class UserService {
     // JWT 토큰이 있으면 Authorization 헤더에 추가
     if (storedToken) {
       headers.Authorization = `Bearer ${storedToken}`;
+      console.log("✅ getCurrentUser - Authorization 헤더 설정됨");
+    } else {
+      console.log("❌ getCurrentUser - 토큰 없어서 Authorization 헤더 없음");
     }
+
+    console.log("📤 getCurrentUser 요청 헤더:", headers);
 
     const response = await fetch(`${API_BASE_URL}/me`, {
       method: "GET",
@@ -78,15 +104,19 @@ class UserService {
       headers,
     });
 
+    console.log("📥 getCurrentUser 응답:", response.status);
+
     if (!response.ok) {
       // 토큰이 만료되었거나 유효하지 않은 경우 제거
       if (response.status === 401) {
-        localStorage.removeItem("jwt_token");
+        tokenStorage.removeToken();
+        console.log("🔑 getCurrentUser - 401로 인한 토큰 제거");
       }
       const errorData = await response.json();
       throw new Error(errorData.error || "사용자 정보를 가져올 수 없습니다.");
     }
 
+    console.log("✅ getCurrentUser 성공");
     return response.json();
   }
 
