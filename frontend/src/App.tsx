@@ -10,7 +10,7 @@ import { useAuthStore } from "./store/useAuthStore";
 
 function App() {
   const navigate = useNavigate();
-  const { user, isAuthenticated, getCurrentUser } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
 
   const router = useLocation();
 
