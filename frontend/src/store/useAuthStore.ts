@@ -96,15 +96,30 @@ export const useAuthStore = create<AuthState>()(
           }
         } catch (error) {
           console.error("❌ 사용자 정보 조회 실패:", error);
-          set({
-            user: null,
-            isAuthenticated: false,
-            isLoading: false,
-            error:
-              error instanceof Error
-                ? error.message
-                : "사용자 정보를 가져올 수 없습니다.",
-          });
+
+          // 401 에러인 경우 (인증되지 않음)
+          if (
+            error instanceof Error &&
+            error.message.includes("Not authenticated")
+          ) {
+            set({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error: null, // 401은 정상적인 상황이므로 에러로 표시하지 않음
+            });
+          } else {
+            // 기타 에러
+            set({
+              user: null,
+              isAuthenticated: false,
+              isLoading: false,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : "사용자 정보를 가져올 수 없습니다.",
+            });
+          }
         }
       },
 

@@ -19,13 +19,20 @@ function App() {
     const checkAuth = async () => {
       try {
         await getCurrentUser();
+
+        // OAuth 로그인 성공 후 URL 파라미터 정리
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get("loginSuccess")) {
+          // URL에서 파라미터 제거
+          window.history.replaceState({}, "", window.location.pathname);
+        }
       } catch (error) {
         console.error("인증 확인 실패:", error);
       }
     };
 
     checkAuth();
-  }, [router.pathname]);
+  }, [router.pathname, getCurrentUser]);
 
   return (
     <div className="min-h-full bg-gray-50">
