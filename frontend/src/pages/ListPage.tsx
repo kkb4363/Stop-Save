@@ -18,25 +18,10 @@ export default function ListPage() {
     null
   );
 
-  // 길게 누르기 관련 상태
-  const [longPressTimer, setLongPressTimer] = useState<number | null>(null);
-
-  // 길게 누르기 시작
-  const handleLongPressStart = (record: SavingRecord) => {
-    const timer = setTimeout(() => {
-      setRecordToDelete(record);
-      setShowDeleteModal(true);
-      navigator.vibrate?.(100); // 진동 피드백 (지원하는 기기에서)
-    }, 1000); // 1초
-    setLongPressTimer(timer);
-  };
-
-  // 길게 누르기 종료
-  const handleLongPressEnd = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      setLongPressTimer(null);
-    }
+  // 클릭으로 삭제 모달 열기
+  const handleRecordClick = (record: SavingRecord) => {
+    setRecordToDelete(record);
+    setShowDeleteModal(true);
   };
 
   // 삭제 확인
@@ -66,15 +51,6 @@ export default function ListPage() {
       fetchAllRecords();
     }
   }, [user?.id, fetchAllRecords]);
-
-  // 컴포넌트 언마운트 시 타이머 정리
-  useEffect(() => {
-    return () => {
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-      }
-    };
-  }, [longPressTimer]);
 
   // 카테고리 목록 추출
   const categories = [
@@ -239,12 +215,7 @@ export default function ListPage() {
                   <div
                     key={record.id}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer select-none"
-                    onMouseDown={() => handleLongPressStart(record)}
-                    onMouseUp={handleLongPressEnd}
-                    onMouseLeave={handleLongPressEnd}
-                    onTouchStart={() => handleLongPressStart(record)}
-                    onTouchEnd={handleLongPressEnd}
-                    onTouchCancel={handleLongPressEnd}
+                    onClick={() => handleRecordClick(record)}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
@@ -292,7 +263,7 @@ export default function ListPage() {
             <div className="text-center mb-6">
               <div className="text-4xl mb-4">🗑️</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                절약 기록을 삭제하시겠습니까?
+                이 절약 기록을 삭제하시겠습니까?
               </h3>
               <div className="text-sm text-gray-600 mb-2">
                 <strong>

@@ -137,7 +137,17 @@ public class SavingRecordService {
         if (recordOpt.isPresent()) {
             SavingRecord record = recordOpt.get();
             if (record.getUser().getEmail().equals(email)) {
+                User user = record.getUser();
+                Long deletedAmount = record.getAmount();
+                
+                // 기록 삭제
                 savingRecordRepository.delete(record);
+                
+                // 사용자의 총 절약 금액에서 삭제된 금액 차감
+                user.setTotalSavings(user.getTotalSavings() - deletedAmount);
+                oAuth2UserRepository.save(user);
+                
+                System.out.println("절약 기록 삭제 완료: " + deletedAmount + "원, 새로운 총액: " + user.getTotalSavings() + "원");
             } else {
                 throw new RuntimeException("권한이 없습니다.");
             }
