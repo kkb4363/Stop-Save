@@ -1,4 +1,5 @@
 import { API_BASE_URL_BUILD } from "../constants/api";
+import { apiClient } from "../utils/apiClient";
 import type {
   SavingRecord,
   SavingRecordRequest,
@@ -13,14 +14,7 @@ class SavingRecordService {
   async createSavingRecord(
     request: SavingRecordRequest
   ): Promise<SavingRecord> {
-    const response = await fetch(`${API_BASE_URL}/record`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(request),
-    });
+    const response = await apiClient.post(`${API_BASE_URL}/record`, request);
 
     if (!response.ok) {
       const errorData = await response.text();
@@ -32,10 +26,7 @@ class SavingRecordService {
 
   // 전체 절약 조회
   async getAllRecords(): Promise<SavingRecord[]> {
-    const res = await fetch(`${API_BASE_URL}/all`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const res = await apiClient.get(`${API_BASE_URL}/all`);
 
     if (!res.ok) {
       throw new Error("전체 절약을 가져올 수 없습니다.");
@@ -46,10 +37,7 @@ class SavingRecordService {
 
   // 오늘 절약 조회
   async getTodayRecords(): Promise<RecordInfo> {
-    const res = await fetch(`${API_BASE_URL}/today`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const res = await apiClient.get(`${API_BASE_URL}/today`);
 
     if (!res.ok) {
       throw new Error("오늘의 절약을 가져올 수 없습니다.");
@@ -60,10 +48,7 @@ class SavingRecordService {
 
   // 이번달 절약 조회
   async getMonthRecords(): Promise<RecordInfo> {
-    const res = await fetch(`${API_BASE_URL}/month`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const res = await apiClient.get(`${API_BASE_URL}/month`);
 
     if (!res.ok) {
       throw new Error("이번달 절약을 가져올 수 없습니다.");
@@ -74,10 +59,8 @@ class SavingRecordService {
 
   // 최근 3가지 절약 기록
   async getLatestRecords(): Promise<SavingRecord[]> {
-    const res = await fetch(`${API_BASE_URL}/latest`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const res = await apiClient.get(`${API_BASE_URL}/latest`);
+
     if (!res.ok) {
       throw new Error("최근 절약 기록을 가져올 수 없습니다.");
     }
@@ -86,10 +69,7 @@ class SavingRecordService {
 
   // 일주일 절약 통계
   async getWeekRecords(): Promise<{ [key: string]: number }[]> {
-    const response = await fetch(`${API_BASE_URL}/week`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const response = await apiClient.get(`${API_BASE_URL}/week`);
 
     if (!response.ok) {
       throw new Error("최근 일주일 절약 통계를 가져올 수 없습니다.");
@@ -100,10 +80,7 @@ class SavingRecordService {
 
   // 카테고리별 통계
   async getCategorySavingsStats(): Promise<CategoryStats[]> {
-    const response = await fetch(`${API_BASE_URL}/category`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const response = await apiClient.get(`${API_BASE_URL}/category`);
 
     if (!response.ok) {
       throw new Error("카테고리별 통계를 가져올 수 없습니다.");
@@ -121,10 +98,9 @@ class SavingRecordService {
 
   // 절약 기록 삭제
   async deleteSavingRecord(recordId: number, userId: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/${recordId}/user/${userId}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+    const response = await apiClient.delete(
+      `${API_BASE_URL}/${recordId}/user/${userId}`
+    );
 
     if (!response.ok) {
       const errorData = await response.text();

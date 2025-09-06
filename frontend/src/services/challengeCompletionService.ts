@@ -1,4 +1,5 @@
 import { API_BASE_URL_BUILD } from "../constants/api";
+import { apiClient } from "../utils/apiClient";
 
 const API_BASE_URL = `${API_BASE_URL_BUILD}/api/challenges`;
 
@@ -42,14 +43,7 @@ class ChallengeCompletionService {
   async completeChallenge(
     request: ChallengeCompletionRequest
   ): Promise<ChallengeCompletionResponse> {
-    const response = await fetch(`${API_BASE_URL}/complete`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(request),
-    });
+    const response = await apiClient.post(`${API_BASE_URL}/complete`, request);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -63,10 +57,7 @@ class ChallengeCompletionService {
    * 사용자의 모든 챌린지 완료 기록 조회
    */
   async getChallengeCompletions(): Promise<ChallengeCompletionsResponse> {
-    const response = await fetch(`${API_BASE_URL}/completions`, {
-      method: "GET",
-      credentials: "include",
-    });
+    const response = await apiClient.get(`${API_BASE_URL}/completions`);
 
     if (!response.ok) {
       const errorData = await response.json();
@@ -85,12 +76,8 @@ class ChallengeCompletionService {
     challengeId: string,
     period: "daily" | "weekly" | "monthly"
   ): Promise<ChallengeStatusResponse> {
-    const response = await fetch(
-      `${API_BASE_URL}/status/${challengeId}?period=${period}`,
-      {
-        method: "GET",
-        credentials: "include",
-      }
+    const response = await apiClient.get(
+      `${API_BASE_URL}/status/${challengeId}?period=${period}`
     );
 
     if (!response.ok) {

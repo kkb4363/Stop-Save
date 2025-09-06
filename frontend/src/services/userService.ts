@@ -1,4 +1,5 @@
 import { API_BASE_URL_BUILD } from "../constants/api";
+import { apiClient } from "../utils/apiClient";
 import type {
   User,
   LoginRequest,
@@ -93,10 +94,7 @@ class UserService {
 
   // 로그아웃
   async logout(): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
+    const response = await apiClient.post(`${API_BASE_URL}/logout`);
 
     if (!response.ok) {
       throw new Error("로그아웃에 실패했습니다.");
@@ -181,14 +179,10 @@ class UserService {
   async updateMonthlyTarget(
     monthlyTarget: number
   ): Promise<{ success: boolean; monthlyTarget: number; message: string }> {
-    const response = await fetch(`${API_BASE_URL}/monthly-target`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify(monthlyTarget),
-    });
+    const response = await apiClient.post(
+      `${API_BASE_URL}/monthly-target`,
+      monthlyTarget
+    );
 
     if (!response.ok) {
       const errorData = await response.json();
