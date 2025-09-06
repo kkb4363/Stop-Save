@@ -28,6 +28,12 @@ public class OAuth2Controller {
      */
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(Authentication authentication) {
+        // 인증되지 않은 사용자인 경우
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("error", "Not authenticated", "message", "Please login first"));
+        }
+        
         if (authentication.getPrincipal() instanceof OidcUser oidcUser) {
             try {
                 User user = oAuth2UserService.saveOrUpdateOAuth2User(oidcUser.getEmail(), oidcUser.getFullName(), oidcUser.getPicture());
