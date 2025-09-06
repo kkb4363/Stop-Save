@@ -87,8 +87,19 @@ export default function SettingsPage() {
     if (!user?.id) return;
 
     try {
-      const result = await userService.updateMonthlyTarget(monthlyTarget);
-      toast(result.message);
+      await userService.updateMonthlyTarget(monthlyTarget);
+      toast.success(
+        `월간 목표가 ${monthlyTarget.toLocaleString()}원으로 설정되었습니다!`
+      );
+
+      // 월간 목표 저장 후 사용자 정보 새로고침
+      try {
+        const { getCurrentUser } = useAuthStore.getState();
+        await getCurrentUser();
+        console.log("✅ 월간 목표 저장 후 사용자 정보 새로고침 완료");
+      } catch (refreshError) {
+        console.warn("⚠️ 사용자 정보 새로고침 실패:", refreshError);
+      }
     } catch (error) {
       console.error("월간 목표 설정 실패:", error);
       alert(
