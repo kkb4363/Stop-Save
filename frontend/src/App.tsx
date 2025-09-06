@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuthStore } from "./store/useAuthStore";
+import { MobileDebugger } from "./components/MobileDebugger";
 
 function App() {
   const navigate = useNavigate();
@@ -16,10 +17,31 @@ function App() {
 
   // OAuth 로그인 성공 후 URL 파라미터 정리
   useEffect(() => {
+    console.log("📱 App.tsx 초기화:", {
+      userAgent: navigator.userAgent,
+      isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ),
+      currentUrl: window.location.href,
+      pathname: router.pathname,
+      search: router.search,
+    });
+
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("loginSuccess")) {
+    const hasLoginSuccess = urlParams.get("loginSuccess");
+    const hasToken = urlParams.get("token");
+
+    console.log("🔍 App.tsx URL 파라미터:", {
+      loginSuccess: hasLoginSuccess,
+      hasToken: !!hasToken,
+      tokenPreview: hasToken ? hasToken.substring(0, 20) + "..." : null,
+    });
+
+    if (hasLoginSuccess) {
+      console.log("🔄 App.tsx - JWT 토큰 처리 후 URL 정리 시작");
       // JWT 토큰 처리 후 URL에서 파라미터 제거 (약간의 지연 후)
       setTimeout(() => {
+        console.log("🧹 App.tsx - URL 파라미터 정리 실행");
         window.history.replaceState({}, "", window.location.pathname);
       }, 1000);
     }
@@ -197,6 +219,9 @@ function App() {
           </NavLink>
         </div>
       </nav>
+
+      {/* 모바일 디버깅 도구 */}
+      <MobileDebugger />
     </div>
   );
 }

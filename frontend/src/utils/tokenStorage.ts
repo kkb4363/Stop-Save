@@ -5,13 +5,31 @@ class TokenStorage {
 
   setToken(token: string): void {
     console.log("🔄 토큰 저장 시도:", token.substring(0, 20) + "...");
+    console.log("📱 브라우저 환경:", {
+      userAgent: navigator.userAgent,
+      isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ),
+      localStorage: typeof localStorage !== "undefined",
+      sessionStorage: typeof sessionStorage !== "undefined",
+    });
 
     try {
       // 1. localStorage 시도
       if (typeof localStorage !== "undefined") {
         localStorage.setItem("jwt_token", token);
         console.log("✅ localStorage에 토큰 저장 성공");
+
+        // 즉시 검증
+        const saved = localStorage.getItem("jwt_token");
+        console.log(
+          "🔍 저장 즉시 검증:",
+          !!saved,
+          saved ? saved.substring(0, 20) + "..." : "null"
+        );
         return;
+      } else {
+        console.warn("⚠️ localStorage 사용 불가능");
       }
     } catch (error) {
       console.warn("⚠️ localStorage 저장 실패:", error);
@@ -34,14 +52,31 @@ class TokenStorage {
   }
 
   getToken(): string | null {
+    console.log("🔍 토큰 조회 시작");
+    console.log("📱 현재 환경:", {
+      userAgent: navigator.userAgent,
+      isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      ),
+      localStorage: typeof localStorage !== "undefined",
+      sessionStorage: typeof sessionStorage !== "undefined",
+    });
+
     try {
       // 1. localStorage 확인
       if (typeof localStorage !== "undefined") {
         const token = localStorage.getItem("jwt_token");
+        console.log(
+          "🔍 localStorage 조회 결과:",
+          !!token,
+          token ? token.substring(0, 20) + "..." : "null"
+        );
         if (token) {
           console.log("✅ localStorage에서 토큰 조회 성공");
           return token;
         }
+      } else {
+        console.warn("⚠️ localStorage 사용 불가능");
       }
     } catch (error) {
       console.warn("⚠️ localStorage 조회 실패:", error);
