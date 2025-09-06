@@ -53,6 +53,10 @@ export const useAuthStore = create<AuthState>()(
           set({ isLoading: true, error: null });
           await userService.logout();
 
+          // JWT 토큰 제거
+          localStorage.removeItem("jwt_token");
+          console.log("🔑 JWT 토큰 제거됨");
+
           set({
             user: null,
             isAuthenticated: false,
@@ -68,6 +72,7 @@ export const useAuthStore = create<AuthState>()(
                 : "로그아웃에 실패했습니다.",
           });
           // 에러가 발생해도 로컬 상태는 클리어
+          localStorage.removeItem("jwt_token");
           set({
             user: null,
             isAuthenticated: false,

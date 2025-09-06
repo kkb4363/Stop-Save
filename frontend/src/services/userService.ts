@@ -50,15 +50,38 @@ class UserService {
 
   // 현재 로그인된 사용자 정보 조회
   async getCurrentUser(): Promise<UserResponse> {
+    // URL에서 JWT 토큰 확인 및 저장
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get("token");
+
+    if (token) {
+      localStorage.setItem("jwt_token", token);
+      console.log("🔑 JWT 토큰 저장:", token.substring(0, 20) + "...");
+    }
+
+    // localStorage에서 토큰 가져오기
+    const storedToken = localStorage.getItem("jwt_token");
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    // JWT 토큰이 있으면 Authorization 헤더에 추가
+    if (storedToken) {
+      headers.Authorization = `Bearer ${storedToken}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}/me`, {
       method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      credentials: "include", // 쿠키도 함께 보내기 (하위 호환성)
+      headers,
     });
 
     if (!response.ok) {
+      // 토큰이 만료되었거나 유효하지 않은 경우 제거
+      if (response.status === 401) {
+        localStorage.removeItem("jwt_token");
+      }
       const errorData = await response.json();
       throw new Error(errorData.error || "사용자 정보를 가져올 수 없습니다.");
     }

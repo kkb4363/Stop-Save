@@ -14,6 +14,7 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -34,12 +35,38 @@ public class OAuth2Controller {
                     .body(Map.of("error", "Not authenticated", "message", "Please login first"));
         }
         
+        // JWT 기반 인증 (이메일이 Principal로 저장됨)
+        if (authentication.getPrincipal() instanceof String email) {
+            try {
+                Optional<User> userOptional = oAuth2UserService.findByEmail(email);
+                if (userOptional.isPresent()) {
+                    User user = userOptional.get();
+                    UserDto userDto = UserDto.builder()
+                            .id(user.getId())
+                            .email(user.getEmail())
+                            .nickname(user.getNickname())
+                            .username(user.getUsername())
+                            .level(user.getLevel())
+                            .experience(user.getExperience())
+                            .totalSavings(user.getTotalSavings())
+                            .monthlyTarget(user.getMonthlyTarget())
+                            .picture(user.getPicture())
+                            .sub(email)
+                            .build();
+
+                    return ResponseEntity.ok(userDto);
+                }
+            } catch (Exception e) {
+                System.out.println("JWT 기반 사용자 조회 실패: " + e.getMessage());
+            }
+        }
+        
+        // OAuth2 기반 인증 (기존 로직 유지)
         if (authentication.getPrincipal() instanceof OidcUser oidcUser) {
             try {
                 User user = oAuth2UserService.saveOrUpdateOAuth2User(oidcUser.getEmail(), oidcUser.getFullName(), oidcUser.getPicture());
 
                 if (user != null) {
-                    // DB에 사용자가 있으면 UserDto로 반환
                     UserDto userDto = UserDto.builder()
                             .id(user.getId())
                             .email(user.getEmail())
@@ -56,8 +83,7 @@ public class OAuth2Controller {
                     return ResponseEntity.ok(userDto);
                 }
             } catch (Exception e) {
-                // DB에서 사용자를 찾을 수 없는 경우
-                System.out.println("User not found in DB, returning OAuth info: " + e.getMessage());
+                System.out.println("OAuth2 기반 사용자 조회 실패: " + e.getMessage());
             }
         }
 

@@ -18,8 +18,10 @@ function App() {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get("loginSuccess")) {
-      // URL에서 파라미터 제거
-      window.history.replaceState({}, "", window.location.pathname);
+      // JWT 토큰 처리 후 URL에서 파라미터 제거 (약간의 지연 후)
+      setTimeout(() => {
+        window.history.replaceState({}, "", window.location.pathname);
+      }, 1000);
     }
   }, [router.pathname]);
 
