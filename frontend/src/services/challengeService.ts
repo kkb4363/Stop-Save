@@ -1,7 +1,7 @@
-import { API_BASE_URL_DEV } from "../constants/api";
+import { API_BASE_URL_BUILD, API_BASE_URL_DEV } from "../constants/api";
 import type { Challenge } from "../types/user";
 
-const API_BASE_URL = `${API_BASE_URL_DEV}/api/challenges`;
+const API_BASE_URL = `${API_BASE_URL_BUILD}/api/challenges`;
 
 class ChallengeService {
   // 모든 활성 챌린지 조회

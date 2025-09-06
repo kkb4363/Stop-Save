@@ -1,6 +1,6 @@
-import { API_BASE_URL_DEV } from "../constants/api";
+import { API_BASE_URL_BUILD, API_BASE_URL_DEV } from "../constants/api";
 
-const API_BASE_URL = `${API_BASE_URL_DEV}/api/challenges`;
+const API_BASE_URL = `${API_BASE_URL_BUILD}/api/challenges`;
 
 interface ChallengeCompletionRequest {
   challengeId: string;
