@@ -28,11 +28,14 @@ export const useAuthStore = create<AuthState>()(
 
       loginWithGoogle: async () => {
         try {
+          console.log("🚀 Google 로그인 시작");
           set({ isLoading: true, error: null });
 
           // Google OAuth2 로그인을 위해 백엔드 OAuth2 엔드포인트로 리다이렉트
           // Spring Security OAuth2가 자동으로 처리하고, 성공 시 프론트엔드로 리다이렉트
-          window.location.href = `${API_BASE_URL_BUILD}/oauth2/authorization/google`;
+          const oauthUrl = `${API_BASE_URL_BUILD}/oauth2/authorization/google`;
+          console.log("🔗 OAuth URL로 리다이렉트:", oauthUrl);
+          window.location.href = oauthUrl;
         } catch (error) {
           set({
             isLoading: false,

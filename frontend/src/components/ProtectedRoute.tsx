@@ -17,8 +17,16 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       urlParams.get("loginSuccess") ||
       window.location.pathname.includes("/oauth2/");
 
+    console.log("🔍 ProtectedRoute 초기화:", {
+      pathname: window.location.pathname,
+      search: window.location.search,
+      isOAuthCallback,
+      loginSuccess: urlParams.get("loginSuccess"),
+    });
+
     // OAuth 진행 중이 아닐 때만 사용자 정보 확인
     if (!isOAuthCallback) {
+      console.log("✅ OAuth 진행 중 아님 - getCurrentUser 호출");
       const checkAuth = async () => {
         try {
           await getCurrentUser();
@@ -28,6 +36,8 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
       };
 
       checkAuth();
+    } else {
+      console.log("⏸️ OAuth 진행 중 - getCurrentUser 건너뜀");
     }
   }, [getCurrentUser]);
 
