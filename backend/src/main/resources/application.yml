@@ -44,4 +44,7 @@ server:
     session:
       cookie:
         secure: true
-        same-site: None
+        same-site: "None"
+        http-only: false
+        max-age: 86400
+

@@ -13,13 +13,13 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     // 사용자명으로 찾기
-    Optional<User> findByUsername(String username);
+//    Optional<User> findByUsername(String username);
 
     // 이메일로 찾기
     Optional<User> findByEmail(String email);
 
-    // 사용자명 또는 이메일로 찾기
-    Optional<User> findByUsernameOrEmail(String username, String email);
+//    // 사용자명 또는 이메일로 찾기
+//    Optional<User> findByUsernameOrEmail(String username, String email);
 
     // 사용자명 중복 체크
     boolean existsByUsername(String username);

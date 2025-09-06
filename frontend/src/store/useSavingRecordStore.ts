@@ -4,31 +4,29 @@ import type {
   SavingRecord,
   SavingRecordRequest,
   CategoryStats,
+  RecordInfo,
 } from "../types/user";
 import { savingRecordService } from "../services/savingRecordService";
 
 interface SavingRecordState {
   records: SavingRecord[];
-  todayTotalAmount: number;
-  monthTotalAmount: number;
-  monthTotalCount: number;
+  todayRecords: RecordInfo;
+  monthRecords: RecordInfo;
   latestRecords: SavingRecord[];
-  monthRecords: SavingRecord[];
-  totalAmount: number;
+  weekRecords: { [key: string]: number }[];
   categoryStats: CategoryStats[];
   isLoading: boolean;
   error: string | null;
 
   // 액션들
   createRecord: (request: SavingRecordRequest) => Promise<void>;
-  fetchUserRecords: (userId: number) => Promise<void>;
-  fetchTodayAmount: (userId: number) => Promise<void>;
-  fetchMonthAmount: (userId: number) => Promise<void>;
-  fetchMonthCount: (userId: number) => Promise<void>;
-  fetchTotalAmount: (userId: number) => Promise<void>;
-  fetchCategoryStats: (userId: number) => Promise<void>;
-  fetchLatestRecords: (userId: number) => Promise<void>;
-  deleteRecord: (recordId: number, userId: number) => Promise<void>;
+  fetchTodayRecords: () => Promise<void>;
+  fetchMonthRecords: () => Promise<void>;
+  fetchWeekRecords: () => Promise<void>;
+  fetchCategoryStats: () => Promise<void>;
+  fetchLatestRecords: () => Promise<void>;
+  fetchAllRecords: () => Promise<void>;
+  // deleteRecord: (recordId: number, userId: number) => Promise<void>;
   clearError: () => void;
   setLoading: (loading: boolean) => void;
 }
@@ -37,12 +35,10 @@ export const useSavingRecordStore = create<SavingRecordState>()(
   persist(
     (set, get) => ({
       records: [],
-      monthRecords: [],
-      todayTotalAmount: 0,
-      monthTotalAmount: 0,
-      monthTotalCount: 0,
+      todayRecords: {},
+      monthRecords: {},
       latestRecords: [],
-      totalAmount: 0,
+      weekRecords: [],
       categoryStats: [],
       isLoading: false,
       error: null,
@@ -53,8 +49,6 @@ export const useSavingRecordStore = create<SavingRecordState>()(
           const newRecord = await savingRecordService.createSavingRecord(
             request
           );
-
-          console.log(get().records);
 
           // 기존 기록에 새 기록 추가
           const currentRecords = get().records || [];
@@ -74,118 +68,89 @@ export const useSavingRecordStore = create<SavingRecordState>()(
         }
       },
 
-      fetchUserRecords: async (userId: number) => {
+      fetchAllRecords: async () => {
         try {
-          set({ isLoading: true, error: null });
-          const records = await savingRecordService.getUserSavingRecords(
-            userId
-          );
-          set({
-            records,
-            isLoading: false,
-          });
+          const records = await savingRecordService.getAllRecords();
+          set({ records });
         } catch (error) {
-          set({
-            isLoading: false,
-            error:
-              error instanceof Error
-                ? error.message
-                : "절약 기록을 가져올 수 없습니다.",
-          });
+          console.error("전체 절약 조회 실패:", error);
         }
       },
 
-      fetchTodayAmount: async (userId: number) => {
+      fetchTodayRecords: async () => {
         try {
-          const todayTotalAmount =
-            await savingRecordService.getTodayTotalAmount(userId);
-          set({ todayTotalAmount });
+          const todayRecords = await savingRecordService.getTodayRecords();
+          set({ todayRecords });
         } catch (error) {
-          console.error("오늘의 절약 총액 조회 실패:", error);
+          console.error("오늘의 절약 조회 실패:", error);
         }
       },
 
-      fetchMonthAmount: async (userId: number) => {
+      fetchMonthRecords: async () => {
         try {
-          const monthTotalAmount =
-            await savingRecordService.getMonthTotalAmount(userId);
-          set({ monthTotalAmount });
+          const monthRecords = await savingRecordService.getMonthRecords();
+          set({ monthRecords });
         } catch (error) {
-          console.error("이번 달 절약 총액 조회 실패:", error);
+          console.error("이번 달 절약 조회 실패:", error);
         }
       },
 
-      fetchMonthCount: async (userId: number) => {
+      fetchLatestRecords: async () => {
         try {
-          const monthTotalCount = await savingRecordService.getMonthTotalCount(
-            userId
-          );
-          set({ monthTotalCount });
-        } catch (error) {
-          console.error("이번 달 절약 횟수 조회 실패:", error);
-        }
-      },
-
-      fetchLatestRecords: async (userId: number) => {
-        try {
-          const latestRecords = await savingRecordService.getLatestRecords(
-            userId
-          );
+          const latestRecords = await savingRecordService.getLatestRecords();
           set({ latestRecords });
         } catch (error) {
           console.error("최근 절약 목록 조회 실패:", error);
         }
       },
 
-      fetchTotalAmount: async (userId: number) => {
+      fetchWeekRecords: async () => {
         try {
-          const totalAmount = await savingRecordService.getTotalSavingsAmount(
-            userId
-          );
-          set({ totalAmount });
+          const weekRecords = await savingRecordService.getWeekRecords();
+          set({ weekRecords });
         } catch (error) {
-          console.error("총 절약 금액 조회 실패:", error);
+          console.error("일주일 절약 목록 조회 실패:", error);
         }
       },
 
-      fetchCategoryStats: async (userId: number) => {
+      fetchCategoryStats: async () => {
         try {
           const categoryStats =
-            await savingRecordService.getCategorySavingsStats(userId);
+            await savingRecordService.getCategorySavingsStats();
           set({ categoryStats });
         } catch (error) {
-          console.error("카테고리별 통계 조회 실패:", error);
+          console.error("카테고리별 절약 조회 실패:", error);
         }
       },
 
-      deleteRecord: async (recordId: number, userId: number) => {
-        try {
-          set({ isLoading: true, error: null });
-          await savingRecordService.deleteSavingRecord(recordId, userId);
+      // deleteRecord: async (recordId: number, userId: number) => {
+      //   try {
+      //     set({ isLoading: true, error: null });
+      //     await savingRecordService.deleteSavingRecord(recordId, userId);
 
-          // 기존 기록에서 삭제된 기록 제거
-          const currentRecords = get().records;
-          set({
-            records: currentRecords.filter((record) => record.id !== recordId),
-            isLoading: false,
-          });
+      //     // 기존 기록에서 삭제된 기록 제거
+      //     const currentRecords = get().records;
+      //     set({
+      //       records: currentRecords.filter((record) => record.id !== recordId),
+      //       isLoading: false,
+      //     });
 
-          // 관련 데이터 새로고침
-          get().fetchTodayAmount(userId);
-          get().fetchMonthAmount(userId);
-          get().fetchTotalAmount(userId);
-          get().fetchCategoryStats(userId);
-        } catch (error) {
-          set({
-            isLoading: false,
-            error:
-              error instanceof Error
-                ? error.message
-                : "절약 기록 삭제에 실패했습니다.",
-          });
-          throw error;
-        }
-      },
+      //     // 관련 데이터 새로고침
+      //     get().fetchTodayAmount(userId);
+      //     get().fetchMonthRecords(userId);
+      //     get().fetchTotalAmount(userId);
+      //     get().fetchCategoryStats(userId);
+      //   } catch (error) {
+      //     set({
+      //       isLoading: false,
+      //       error:
+      //         error instanceof Error
+      //           ? error.message
+      //           : "절약 기록 삭제에 실패했습니다.",
+      //     });
+      //     throw error;
+      //   }
+      // },
 
       clearError: () => set({ error: null }),
       setLoading: (loading: boolean) => set({ isLoading: loading }),
@@ -194,8 +159,10 @@ export const useSavingRecordStore = create<SavingRecordState>()(
       name: "saving-record-storage",
       partialize: (state) => ({
         records: state.records,
+        todayRecords: state.todayRecords,
         monthRecords: state.monthRecords,
-        totalAmount: state.totalAmount,
+        latestRecords: state.latestRecords,
+        weekRecords: state.weekRecords,
         categoryStats: state.categoryStats,
       }),
     }

@@ -4,30 +4,21 @@ import { useSavingRecordStore } from "../store/useSavingRecordStore";
 
 export default function StatsPage() {
   const { user } = useAuthStore();
-  const {
-    records,
-    totalAmount,
-    categoryStats,
-    fetchUserRecords,
-    fetchTotalAmount,
-    fetchCategoryStats,
-  } = useSavingRecordStore();
+  const { records, categoryStats, fetchCategoryStats } = useSavingRecordStore();
 
-  // 사용자 데이터 로드
   useEffect(() => {
     if (user?.id) {
-      fetchUserRecords(user.id);
-      fetchTotalAmount(user.id);
-      fetchCategoryStats(user.id);
+      fetchCategoryStats();
     }
-  }, [user?.id, fetchUserRecords, fetchTotalAmount, fetchCategoryStats]);
+  }, [user?.id, fetchCategoryStats]);
 
   // 카테고리별 통계 데이터 가공 (백엔드 데이터 사용)
   const categoryData = categoryStats
     .map((stat) => ({
       category: stat.category,
       amount: stat.amount,
-      percentage: totalAmount > 0 ? (stat.amount / totalAmount) * 100 : 0,
+      percentage:
+        user!.totalSavings > 0 ? (stat.amount / user!.totalSavings) * 100 : 0,
       icon:
         stat.category === "음식"
           ? "🍔"
@@ -76,7 +67,7 @@ export default function StatsPage() {
         <div className="card p-4 text-center">
           <div className="text-2xl mb-2">💰</div>
           <div className="text-lg font-bold text-gray-900">
-            {totalAmount.toLocaleString()}원
+            {user!.totalSavings?.toLocaleString()}원
           </div>
           <div className="text-xs text-gray-500">총 절약 금액</div>
         </div>

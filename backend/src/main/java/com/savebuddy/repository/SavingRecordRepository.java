@@ -26,10 +26,6 @@ public interface SavingRecordRepository extends JpaRepository<SavingRecord, Long
             "AND MONTH(sr.createdAt) = MONTH(CURRENT_DATE)")
     List<SavingRecord> findThisMonthSavingsByUserId(@Param("userId") Long userId);
 
-    // 사용자별 총 절약 금액
-    @Query("SELECT COALESCE(SUM(sr.amount), 0) FROM SavingRecord sr WHERE sr.user.id = :userId")
-    Long getTotalSavingsAmountByUserId(@Param("userId") Long userId);
-
     // 카테고리별 절약 통계
     @Query("SELECT sr.category, COALESCE(SUM(sr.amount), 0) FROM SavingRecord sr " +
             "WHERE sr.user.id = :userId GROUP BY sr.category")
@@ -38,4 +34,7 @@ public interface SavingRecordRepository extends JpaRepository<SavingRecord, Long
     // 기간별 절약 기록
     List<SavingRecord> findByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(
             Long userId, LocalDateTime startDate, LocalDateTime endDate);
+
+
+
 }

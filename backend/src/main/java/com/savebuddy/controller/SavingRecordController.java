@@ -1,27 +1,39 @@
 package com.savebuddy.controller;
 
+import com.savebuddy.dto.RecordInfoDto;
 import com.savebuddy.dto.SavingRecordDto;
 import com.savebuddy.entity.SavingRecord;
 import com.savebuddy.service.SavingRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/savings")
-@CrossOrigin(origins = "https://stop-save.vercel.app", allowCredentials = "true")
+//@CrossOrigin(origins = "https://stop-save.vercel.app", allowCredentials = "true")
 public class SavingRecordController {
 
     @Autowired
     private SavingRecordService savingRecordService;
 
-    // 절약 기록 등록
+    /**
+     * 절약 등록
+     * @return
+     */
     @PostMapping("/record")
-    public ResponseEntity<?> createSavingRecord(@RequestBody SavingRecordDto request) {
+    public ResponseEntity<?> createSavingRecord(@RequestBody SavingRecordDto request, Authentication authentication) {
         try {
+            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            String email = oidcUser.getEmail();
+
             SavingRecord record = savingRecordService.createSavingRecord(
-                    request.getUserId(),
+                    email,
                     request.getItemName(),
                     request.getAmount(),
                     request.getCategory(),
@@ -33,58 +45,138 @@ public class SavingRecordController {
         }
     }
 
-    // 오늘의 총 절약 금액
-    @GetMapping("/today/{userId}")
-    public ResponseEntity<Long> getUserSavingRecords(@PathVariable Long userId) {
-        Long results = savingRecordService.getTodayTotalAmount(userId);
-        return ResponseEntity.ok(results);
+    /**
+     * 전체 절약 조회
+     * @return
+     */
+    @GetMapping("/all")
+    public ResponseEntity<?> allRecords(Authentication authentication){
+        try{
+            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            String email = oidcUser.getEmail();
+
+            List<SavingRecord> results = savingRecordService.allRecords(email);
+            return ResponseEntity.ok(results);
+
+        }catch (ClassCastException e) {
+            return ResponseEntity.status(400)
+                    .body(Map.of("error", "Invalid authentication type"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to get today Records"));
+        }
     }
 
-    // 이번달 총 절약 금액
-    @GetMapping("/month/{userId}")
-    public ResponseEntity<Long> getMonthTotalAmount(@PathVariable Long userId){
-        Long results = savingRecordService.getMonthTotalAmount(userId);
-        return ResponseEntity.ok(results);
+
+    /**
+     * 오늘의 절약 조회
+     * @return
+     */
+    @GetMapping("/today")
+    public ResponseEntity<?> todayRecords(Authentication authentication){
+        try{
+            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            String email = oidcUser.getEmail();
+
+            RecordInfoDto results = savingRecordService.todayRecords(email);
+            return ResponseEntity.ok(results);
+
+        }catch (ClassCastException e) {
+            return ResponseEntity.status(400)
+                    .body(Map.of("error", "Invalid authentication type"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to get today Records"));
+        }
     }
 
-    // 이번달 절약 횟수
-    @GetMapping("/month/count/{userId}")
-    public ResponseEntity<Long> getMonthTotalCount(@PathVariable Long userId){
-        Long results = savingRecordService.getMonthTotalCount(userId);
-        return ResponseEntity.ok(results);
+    /**
+     * 이번달 절약 조회
+     * @return
+     */
+    @GetMapping("/month")
+    public ResponseEntity<?> monthRecords(Authentication authentication){
+        try{
+            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            String email = oidcUser.getEmail();
+
+            RecordInfoDto results = savingRecordService.monthRecords(email);
+            return ResponseEntity.ok(results);
+
+        }catch (ClassCastException e) {
+            return ResponseEntity.status(400)
+                    .body(Map.of("error", "Invalid authentication type"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to get month Records"));
+        }
     }
 
-    // 최근 3가지 절약 기록
-    @GetMapping("/latest/{userId}")
-    public ResponseEntity<List<SavingRecordDto>> getLatestRecords(@PathVariable Long userId){
-        List<SavingRecord> records = savingRecordService.getLatestRecords(userId);
 
-        List<SavingRecordDto> results = records.stream().map(r -> SavingRecordDto.builder()
-                        .id(r.getId()).itemName(r.getItemName()).amount(r.getAmount()).category(r.getCategory()).memo(r.getMemo()).createdAt(r.getCreatedAt()).build())
-                .toList();
+    /**
+     * 최근 3가지 절약 기록
+     * @return
+     */
+    @GetMapping("/latest")
+    public ResponseEntity<?> getLatestRecords(Authentication authentication){
+        try{
+            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            String email = oidcUser.getEmail();
 
-        return ResponseEntity.ok(results);
+            List<SavingRecord> results = savingRecordService.getLatestRecords(email);
+            return ResponseEntity.ok(results);
+
+        }catch (ClassCastException e) {
+            return ResponseEntity.status(400)
+                    .body(Map.of("error", "Invalid authentication type"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to get month Records"));
+        }
     }
 
-    // 총 절약 금액
-    @GetMapping("/all/{userId}")
-    public ResponseEntity<Long> getTotalAmount(@PathVariable Long userId){
-        Long results = savingRecordService.totalAmount(userId);
-        return ResponseEntity.ok(results);
+    /**
+     * 최근 일주일 절약 통계
+     * @return
+     */
+    @GetMapping("/week")
+    public ResponseEntity<?> getWeekRecords(Authentication authentication){
+        try{
+            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            String email = oidcUser.getEmail();
+
+            Map<DayOfWeek, Long> results = savingRecordService.getWeekRecordsStatus(email);
+            return ResponseEntity.ok(results);
+
+        }catch (ClassCastException e) {
+            return ResponseEntity.status(400)
+                    .body(Map.of("error", "Invalid authentication type"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to get Week Records"));
+        }
     }
 
-    // 총 절약 기록
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<SavingRecord>> getAllRecords(@PathVariable Long userId){
-        List<SavingRecord> results = savingRecordService.getAllRecords(userId);
-        return ResponseEntity.ok(results);
-    }
+    /**
+     * 카테고리별 통계
+     * @return
+     */
+    @GetMapping("/category")
+    public ResponseEntity<?> getCategoryRecords(Authentication authentication){
+        try{
+            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
+            String email = oidcUser.getEmail();
 
-    // 카테고리별 통계
-    @GetMapping("/stats/category/{userId}")
-    public ResponseEntity<List<Object[]>> getCategorySavingsStats(@PathVariable Long userId) {
-        List<Object[]> stats = savingRecordService.getCategorySavingsStats(userId);
-        return ResponseEntity.ok(stats);
+            List<Object[]> results = savingRecordService.getCategorySavingsStats(email);
+            return ResponseEntity.ok(results);
+
+        }catch (ClassCastException e) {
+            return ResponseEntity.status(400)
+                    .body(Map.of("error", "Invalid authentication type"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body(Map.of("error", "Failed to get Category Records"));
+        }
     }
 
     // 절약 기록 삭제
