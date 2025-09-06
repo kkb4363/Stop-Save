@@ -1,7 +1,7 @@
+import { API_BASE_URL_DEV } from "../constants/api";
 import type { Challenge } from "../types/user";
 
-const API_BASE_URL =
-  "https://save-buddy-69f54793f2e7.herokuapp.com/api/challenges";
+const API_BASE_URL = `${API_BASE_URL_DEV}/api/challenges`;
 
 class ChallengeService {
   // 모든 활성 챌린지 조회

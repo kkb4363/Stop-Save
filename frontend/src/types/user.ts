@@ -37,6 +37,7 @@ export interface UserResponse {
   picture?: string;
   loginType: "GOOGLE" | "LOCAL";
   role: string;
+  sub?: string;
 }
 
 export interface ApiResponse<T> {
@@ -54,6 +55,12 @@ export interface SavingRecord {
   category: string;
   memo?: string;
   createdAt: string;
+}
+
+export interface RecordInfo {
+  totalAmount?: number;
+  count?: number;
+  data?: SavingRecord[];
 }
 
 export interface SavingRecordRequest {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
 import { useSavingRecordStore } from "../store/useSavingRecordStore";
@@ -14,9 +14,7 @@ import { ToastContainer, toast } from "react-toastify";
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
-  const { records, totalAmount, fetchUserRecords, fetchTotalAmount } =
-    useSavingRecordStore();
-  const { getCurrentUser } = useAuthStore();
+  const { records } = useSavingRecordStore();
   const [monthlyTarget, setMonthlyTarget] = useState(
     user?.monthlyTarget || 100000
   );
@@ -28,15 +26,11 @@ export default function SettingsPage() {
   const [showExportModal, setShowExportModal] = useState(false);
 
   // 사용자 데이터 로드
-  useEffect(() => {
-    if (user?.id) {
-      fetchUserRecords(user.id);
-      fetchTotalAmount(user.id);
-
-      // 사용자 정보에서 월간 목표 설정
-      setMonthlyTarget(user.monthlyTarget || 100000);
-    }
-  }, [user?.id, user?.monthlyTarget, fetchUserRecords, fetchTotalAmount]);
+  // useEffect(() => {
+  //   if (user?.id) {
+  //     getCurrentUser();
+  //   }
+  // }, []);
 
   // Excel 내보내기 핸들러들
   const handleExportAll = () => {
@@ -93,19 +87,8 @@ export default function SettingsPage() {
     if (!user?.id) return;
 
     try {
-      const result = await userService.updateMonthlyTarget(
-        user.id,
-        monthlyTarget
-      );
-
-      setTimeout(() => {
-        toast(result.message);
-      }, 1000);
-
-      getCurrentUser();
-
-      // 사용자 정보 새로고침 (필요시)
-      // getCurrentUser(); 를 호출하여 최신 사용자 정보를 가져올 수 있습니다.
+      const result = await userService.updateMonthlyTarget(monthlyTarget);
+      toast(result.message);
     } catch (error) {
       console.error("월간 목표 설정 실패:", error);
       alert(
@@ -148,8 +131,8 @@ export default function SettingsPage() {
                 절약 레벨 {user?.level || 1}
               </p>
               <p className="text-xs text-gray-500">
-                총 {totalAmount.toLocaleString()}원 절약 • {records.length}회
-                기록
+                총 {user?.totalSavings.toLocaleString()}원 절약 •{" "}
+                {records.length}회 기록
               </p>
             </div>
             {/* <button className="text-sm text-brand-600">편집</button> */}
@@ -191,9 +174,10 @@ export default function SettingsPage() {
               <div className="flex justify-between items-center">
                 <span className="text-sm text-gray-600">이번 달 진행률</span>
                 <span className="text-sm font-semibold text-brand-600">
-                  {Math.min(100, (totalAmount / monthlyTarget) * 100).toFixed(
-                    1
-                  )}
+                  {Math.min(
+                    100,
+                    (user!.totalSavings / monthlyTarget) * 100
+                  ).toFixed(1)}
                   %
                 </span>
               </div>
@@ -203,7 +187,7 @@ export default function SettingsPage() {
                   style={{
                     width: `${Math.min(
                       100,
-                      (totalAmount / monthlyTarget) * 100
+                      (user!.totalSavings / monthlyTarget) * 100
                     )}%`,
                   }}
                 ></div>

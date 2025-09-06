@@ -1,10 +1,18 @@
-import { Outlet, Link, NavLink, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  Link,
+  NavLink,
+  useNavigate,
+  useLocation,
+} from "react-router-dom";
 import { useEffect } from "react";
 import { useAuthStore } from "./store/useAuthStore";
 
 function App() {
   const navigate = useNavigate();
   const { user, isAuthenticated, getCurrentUser } = useAuthStore();
+
+  const router = useLocation();
 
   // 페이지 로드 시 현재 사용자 정보 확인
   useEffect(() => {
@@ -17,7 +25,7 @@ function App() {
     };
 
     checkAuth();
-  }, [getCurrentUser]);
+  }, [router.pathname]);
 
   return (
     <div className="min-h-full bg-gray-50">

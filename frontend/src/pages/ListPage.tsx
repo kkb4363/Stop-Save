@@ -5,8 +5,7 @@ import { Link } from "react-router-dom";
 
 export default function ListPage() {
   const { user } = useAuthStore();
-  const { records, totalAmount, fetchUserRecords, fetchTotalAmount } =
-    useSavingRecordStore();
+  const { records, fetchAllRecords } = useSavingRecordStore();
 
   const [sortBy, setSortBy] = useState<"date" | "amount" | "category">("date");
   const [filterCategory, setFilterCategory] = useState<string>("전체");
@@ -14,10 +13,9 @@ export default function ListPage() {
   // 사용자 데이터 로드
   useEffect(() => {
     if (user?.id) {
-      fetchUserRecords(user.id);
-      fetchTotalAmount(user.id);
+      fetchAllRecords();
     }
-  }, [user?.id, fetchUserRecords, fetchTotalAmount]);
+  }, [user?.id, fetchAllRecords]);
 
   // 카테고리 목록 추출
   const categories = [
@@ -79,7 +77,9 @@ export default function ListPage() {
       {/* 헤더 */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-gray-900">절약 기록</h1>
+          <h1 className="text-xl font-bold text-gray-900">
+            {filterCategory} 절약 기록
+          </h1>
           <p className="text-sm text-gray-600 mt-1">
             총 {filteredAndSortedRecords.length}번의 절약
           </p>
@@ -90,7 +90,7 @@ export default function ListPage() {
       <div className="card p-4 gradient-card">
         <div className="text-center">
           <div className="text-2xl font-bold text-gray-900 mb-1">
-            {totalAmount.toLocaleString()}원
+            {user?.totalSavings.toLocaleString()}원
           </div>
           <p className="text-sm text-gray-600">전체 절약 총액</p>
         </div>

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User } from "../types/user";
 import { userService } from "../services/userService";
+import { API_BASE_URL_DEV } from "../constants/api";
 
 interface AuthState {
   user: User | null;
@@ -13,16 +14,13 @@ interface AuthState {
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   getCurrentUser: () => Promise<void>;
-  updateUser: (userId: number, userData: Partial<User>) => Promise<void>;
-  addExperience: (userId: number, experience: number) => Promise<void>;
-  updateSavings: (userId: number, amount: number) => Promise<void>;
   clearError: () => void;
   setLoading: (loading: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
@@ -34,8 +32,7 @@ export const useAuthStore = create<AuthState>()(
 
           // Google OAuth2 로그인을 위해 백엔드 OAuth2 엔드포인트로 리다이렉트
           // Spring Security OAuth2가 자동으로 처리하고, 성공 시 프론트엔드로 리다이렉트
-          window.location.href =
-            "https://save-buddy-69f54793f2e7.herokuapp.com/oauth2/authorization/google";
+          window.location.href = `${API_BASE_URL_DEV}/oauth2/authorization/google`;
         } catch (error) {
           set({
             isLoading: false,
@@ -81,7 +78,7 @@ export const useAuthStore = create<AuthState>()(
           const userResponse = await userService.getCurrentUser();
 
           // 사용자 정보가 성공적으로 조회되면 인증된 상태로 설정
-          if (userResponse && userResponse.id) {
+          if (userResponse && userResponse.sub) {
             set({
               user: userResponse,
               isAuthenticated: true,
@@ -108,81 +105,6 @@ export const useAuthStore = create<AuthState>()(
                 ? error.message
                 : "사용자 정보를 가져올 수 없습니다.",
           });
-        }
-      },
-
-      updateUser: async (userId: number, userData: Partial<User>) => {
-        try {
-          set({ isLoading: true, error: null });
-          const currentUser = get().user;
-          if (!currentUser) throw new Error("사용자 정보가 없습니다.");
-
-          const updatedUser = await userService.updateUser(userId, {
-            ...currentUser,
-            ...userData,
-          });
-
-          set({
-            user: updatedUser,
-            isLoading: false,
-            error: null,
-          });
-        } catch (error) {
-          set({
-            isLoading: false,
-            error:
-              error instanceof Error
-                ? error.message
-                : "사용자 정보 수정에 실패했습니다.",
-          });
-          throw error;
-        }
-      },
-
-      addExperience: async (userId: number, experience: number) => {
-        try {
-          set({ isLoading: true, error: null });
-          const updatedUser = await userService.addExperience(
-            userId,
-            experience
-          );
-
-          set({
-            user: updatedUser,
-            isLoading: false,
-            error: null,
-          });
-        } catch (error) {
-          set({
-            isLoading: false,
-            error:
-              error instanceof Error
-                ? error.message
-                : "경험치 추가에 실패했습니다.",
-          });
-          throw error;
-        }
-      },
-
-      updateSavings: async (userId: number, amount: number) => {
-        try {
-          set({ isLoading: true, error: null });
-          const updatedUser = await userService.updateSavings(userId, amount);
-
-          set({
-            user: updatedUser,
-            isLoading: false,
-            error: null,
-          });
-        } catch (error) {
-          set({
-            isLoading: false,
-            error:
-              error instanceof Error
-                ? error.message
-                : "적금액 업데이트에 실패했습니다.",
-          });
-          throw error;
         }
       },
 

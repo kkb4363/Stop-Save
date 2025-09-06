@@ -1,17 +1,22 @@
 package com.savebuddy.service;
 
+import com.savebuddy.dto.RecordInfoDto;
 import com.savebuddy.entity.SavingRecord;
 import com.savebuddy.entity.User;
+import com.savebuddy.repository.OAuth2UserRepository;
 import com.savebuddy.repository.SavingRecordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.savebuddy.repository.SavingRecordRepository2;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -21,14 +26,14 @@ public class SavingRecordService {
     private SavingRecordRepository savingRecordRepository;
 
     @Autowired
-    private SavingRecordRepository2 savingRecordRepository2;
+    private OAuth2UserRepository oAuth2UserRepository;
 
     @Autowired
-    private UserService userService;
+    private OAuth2UserService oAuth2UserService;
 
     // 절약 기록 등록
-    public SavingRecord createSavingRecord(Long userId, String itemName, Long amount, String category, String memo) {
-        Optional<User> userOpt = userService.getUserById(userId);
+    public SavingRecord createSavingRecord(String email, String itemName, Long amount, String category, String memo) {
+        Optional<User> userOpt = oAuth2UserService.findByEmail(email);
         if (!userOpt.isPresent()) {
             throw new RuntimeException("사용자를 찾을 수 없습니다.");
         }
@@ -43,72 +48,82 @@ public class SavingRecordService {
 
         SavingRecord savedRecord = savingRecordRepository.save(record);
 
-        // 사용자 총 절약 금액 업데이트
-        userService.updateTotalSavings(userId, amount);
-
-        // 경험치 추가 (절약 1회당 10exp)
-        userService.addExperience(userId, 10);
+        // 사용자 총 절약 금액 & 경험치 추가(1회당 10exp)
+        user.setTotalSavings(user.getTotalSavings() + amount);
+        user.setExperience(user.getExperience() + 10);
+        oAuth2UserRepository.save(user);
 
         return savedRecord;
     }
 
-    // 오늘의 총 절약 금액
-    public Long getTodayTotalAmount(Long userId) {
-        List<SavingRecord> records = savingRecordRepository2.list(userId);
-        return records.stream().mapToLong(sr -> sr.getAmount()).sum();
+    // 총 절약 기록 조회
+    public List<SavingRecord> allRecords(String email){
+        Optional<User> optUser = oAuth2UserService.findByEmail(email);
+        return savingRecordRepository.findByUserIdOrderByCreatedAtDesc(optUser.get().getId());
     }
 
-    // 이번달 총 절약 금액
-    public Long getMonthTotalAmount(Long userId){
-        return filterMonthRecords(userId).mapToLong(sr -> sr.getAmount()).sum();
+    // 오늘 절약 조회
+    public RecordInfoDto todayRecords(String email){
+        Optional<User> optUser = oAuth2UserService.findByEmail(email);
+
+        List<SavingRecord> list = savingRecordRepository.findTodaySavingsByUserId(optUser.get().getId());
+
+        return RecordInfoDto.builder()
+                .totalAmount(list.stream().mapToLong(re -> re.getAmount()).sum())
+                .count(list.stream().count())
+                .data(list)
+                .build();
     }
 
-    // 이번달 절약 횟수
-    public Long getMonthTotalCount(Long userId){
-        return filterMonthRecords(userId).count();
+    // 이번달 절약 조회
+    public RecordInfoDto monthRecords(String email){
+        Optional<User> optUser = oAuth2UserService.findByEmail(email);
+
+        List<SavingRecord> list = savingRecordRepository.findThisMonthSavingsByUserId(optUser.get().getId());
+
+        return RecordInfoDto.builder()
+                .totalAmount(list.stream().mapToLong(re -> re.getAmount()).sum())
+                .count(list.stream().count())
+                .data(list)
+                .build();
     }
 
     // 최근 3가지 절약 기록
-    public List<SavingRecord> getLatestRecords(Long userId){
-        List<SavingRecord> records = savingRecordRepository2.list(userId)
-                .stream()
+    public List<SavingRecord> getLatestRecords(String email){
+        Optional<User> optUser = oAuth2UserService.findByEmail(email);
+
+        List<SavingRecord> list = savingRecordRepository.findByUserIdOrderByCreatedAtDesc(optUser.get().getId());
+
+        return list.stream()
                 .sorted((a,b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                 .limit(3).toList();
-
-        return records;
     }
 
-    private Stream<SavingRecord> filterMonthRecords(Long userId){
-        LocalDateTime startOfMonth = LocalDateTime.now()
-                .withDayOfMonth(1)
-                .withHour(0)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0);
+    // 최근 7일 절약 통계
+    public Map<DayOfWeek, Long> getWeekRecordsStatus(String email){
+        Optional<User> optUser = oAuth2UserService.findByEmail(email);
 
-        LocalDateTime endOfMonth = startOfMonth.plusMonths(1);
+        LocalDateTime startDate = LocalDate.now().minusDays(6).atStartOfDay();
+        LocalDateTime endDate = LocalDate.now().atTime(LocalTime.MAX);
 
-        List<SavingRecord> records = savingRecordRepository2.list(userId);
+        List<SavingRecord> list = savingRecordRepository.findByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(optUser.get().getId(), startDate, endDate);
 
-        return records.stream().filter(sr -> {
-            LocalDateTime createdAt = sr.getCreatedAt();
-            return !createdAt.isBefore(startOfMonth) && createdAt.isBefore(endOfMonth);
-        });
+
+        Map<DayOfWeek, Long> status = list.stream()
+                .collect(Collectors.groupingBy(
+                        sr -> sr.getCreatedAt().getDayOfWeek(),
+                        Collectors.summingLong(SavingRecord::getAmount)
+                ));
+
+        return status;
     }
 
-    // 총 절약 금액
-    public Long totalAmount(Long userId){
-        return savingRecordRepository2.list(userId).stream().mapToLong(sr -> sr.getAmount()).sum();
-    }
-
-    // 총 절약 기록
-    public List<SavingRecord> getAllRecords(Long userId){
-        return savingRecordRepository2.list(userId).stream().toList();
-    }
 
     // 카테고리별 통계
-    public List<Object[]> getCategorySavingsStats(Long userId) {
-        return savingRecordRepository.getCategorySavingsStatsByUserId(userId);
+    public List<Object[]> getCategorySavingsStats(String email) {
+        Optional<User> optUser = oAuth2UserService.findByEmail(email);
+
+        return savingRecordRepository.getCategorySavingsStatsByUserId(optUser.get().getId());
     }
 
     // 기간별 절약 기록

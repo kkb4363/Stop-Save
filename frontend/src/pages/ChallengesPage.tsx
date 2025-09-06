@@ -11,7 +11,7 @@ import ReactConfetti from "react-confetti";
 
 export default function ChallengesPage() {
   const { user } = useAuthStore();
-  const { records, fetchUserRecords } = useSavingRecordStore();
+  const { records } = useSavingRecordStore();
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -54,11 +54,7 @@ export default function ChallengesPage() {
   }, []);
 
   // 사용자 데이터 로드
-  useEffect(() => {
-    if (user?.id) {
-      fetchUserRecords(user.id);
-    }
-  }, [user?.id, fetchUserRecords]);
+  useEffect(() => {}, [user?.id]);
 
   // 완료된 챌린지 로드
   useEffect(() => {

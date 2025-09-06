@@ -6,41 +6,29 @@ import ReactConfetti from "react-confetti";
 
 export default function HomePage() {
   const { user } = useAuthStore();
+
   const {
-    todayTotalAmount,
-    monthTotalCount,
-    monthTotalAmount,
+    todayRecords,
+    monthRecords,
     latestRecords,
-    totalAmount,
-    fetchTodayAmount,
-    fetchMonthAmount,
-    fetchTotalAmount,
-    fetchMonthCount,
+    fetchTodayRecords,
+    fetchMonthRecords,
     fetchLatestRecords,
   } = useSavingRecordStore();
 
   useEffect(() => {
     if (user?.id) {
-      fetchTodayAmount(user.id);
-      fetchMonthAmount(user.id);
-      fetchLatestRecords(user.id);
-      fetchMonthCount(user.id);
-      fetchTotalAmount(user.id);
+      fetchTodayRecords();
+      fetchMonthRecords();
+      fetchLatestRecords();
     }
-  }, [
-    user?.id,
-    fetchTodayAmount,
-    fetchMonthAmount,
-    fetchLatestRecords,
-    fetchMonthCount,
-    fetchTotalAmount,
-  ]);
+  }, [user?.id, fetchTodayRecords, fetchMonthRecords, fetchLatestRecords]);
 
   const { state } = useLocation();
   const success = state?.success;
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // 사용자 레벨과 경험치 (백엔드 데이터 사용)
+  // 사용자 레벨과 경험치
   const level = user?.level || 1;
   const experience = user?.experience || 0;
   const nextLevelXP = Math.max(0, level * 100 - experience);
@@ -70,10 +58,10 @@ export default function HomePage() {
       <div className="card p-6 gradient-card">
         <div className="text-center">
           <p className="text-sm text-gray-600 mb-2">
-            {user?.nickname || user?.username || "사용자"} 님의 절약
+            {user?.nickname || user?.username || "사용자"}님의 절약
           </p>
           <div className="text-3xl font-bold text-gray-900 mb-1">
-            {totalAmount.toLocaleString()}원
+            {user?.totalSavings.toLocaleString()}원
           </div>
         </div>
 
@@ -98,18 +86,16 @@ export default function HomePage() {
       {/* 통계 카드들 */}
       <div className="grid grid-cols-2 gap-4">
         <StatCard
-          title="오늘 절약"
-          value={`${todayTotalAmount.toLocaleString()}원`}
+          title="오늘"
+          value={`${todayRecords?.totalAmount?.toLocaleString()}원`}
           icon="💰"
-          trend={
-            todayTotalAmount > 0 ? `+${todayTotalAmount.toLocaleString()}` : "0"
-          }
+          trend={`${todayRecords?.count}회 절약`}
         />
         <StatCard
           title="이번 달"
-          value={`${monthTotalAmount.toLocaleString()}원`}
+          value={`${monthRecords?.totalAmount?.toLocaleString()}원`}
           icon="📈"
-          trend={`${monthTotalCount}회 절약`}
+          trend={`${monthRecords?.count}회 절약`}
         />
       </div>
 

@@ -1,3 +1,4 @@
+import { API_BASE_URL_DEV } from "../constants/api";
 import type {
   User,
   LoginRequest,
@@ -6,7 +7,7 @@ import type {
   UserResponse,
 } from "../types/user";
 
-const API_BASE_URL = "https://save-buddy-69f54793f2e7.herokuapp.com/api/users";
+const API_BASE_URL = `${API_BASE_URL_DEV}/api/users`;
 
 class UserService {
   // 사용자 회원가입
@@ -155,36 +156,20 @@ class UserService {
 
   // 월간 목표 금액 설정
   async updateMonthlyTarget(
-    userId: number,
     monthlyTarget: number
   ): Promise<{ success: boolean; monthlyTarget: number; message: string }> {
-    const response = await fetch(`${API_BASE_URL}/${userId}/monthly-target`, {
-      method: "PUT",
+    const response = await fetch(`${API_BASE_URL}/monthly-target`, {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: JSON.stringify({ monthlyTarget }),
+      body: JSON.stringify(monthlyTarget),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || "월간 목표 설정에 실패했습니다.");
-    }
-
-    return response.json();
-  }
-
-  // 월간 목표 금액 조회
-  async getMonthlyTarget(userId: number): Promise<{ monthlyTarget: number }> {
-    const response = await fetch(`${API_BASE_URL}/${userId}/monthly-target`, {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || "월간 목표 조회에 실패했습니다.");
     }
 
     return response.json();

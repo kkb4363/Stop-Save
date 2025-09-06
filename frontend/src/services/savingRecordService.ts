@@ -1,11 +1,12 @@
+import { API_BASE_URL_DEV } from "../constants/api";
 import type {
   SavingRecord,
   SavingRecordRequest,
   CategoryStats,
+  RecordInfo,
 } from "../types/user";
 
-const API_BASE_URL =
-  "https://save-buddy-69f54793f2e7.herokuapp.com/api/savings";
+const API_BASE_URL = `${API_BASE_URL_DEV}/api/savings`;
 
 class SavingRecordService {
   // 절약 기록 등록
@@ -29,53 +30,51 @@ class SavingRecordService {
     return response.json();
   }
 
-  //여기서부터 시작
-
-  // 오늘의 총 절약 금액
-  async getTodayTotalAmount(userId: number): Promise<number> {
-    const res = await fetch(`${API_BASE_URL}/today/${userId}`, {
+  // 전체 절약 조회
+  async getAllRecords(): Promise<SavingRecord[]> {
+    const res = await fetch(`${API_BASE_URL}/all`, {
       method: "GET",
       credentials: "include",
     });
 
     if (!res.ok) {
-      throw new Error("오늘의 절약 금액을 가져올 수 없습니다.");
+      throw new Error("전체 절약을 가져올 수 없습니다.");
     }
 
     return res.json();
   }
 
-  // 이번달 총 절약 금액
-  async getMonthTotalAmount(userId: number): Promise<number> {
-    const res = await fetch(`${API_BASE_URL}/month/${userId}`, {
+  // 오늘 절약 조회
+  async getTodayRecords(): Promise<RecordInfo> {
+    const res = await fetch(`${API_BASE_URL}/today`, {
       method: "GET",
       credentials: "include",
     });
 
     if (!res.ok) {
-      throw new Error("이번달 절약 금액을 가져올 수 없습니다.");
+      throw new Error("오늘의 절약을 가져올 수 없습니다.");
     }
 
     return res.json();
   }
 
-  // 이번달 총 절약 횟수
-  async getMonthTotalCount(userId: number): Promise<number> {
-    const res = await fetch(`${API_BASE_URL}/month/count/${userId}`, {
+  // 이번달 절약 조회
+  async getMonthRecords(): Promise<RecordInfo> {
+    const res = await fetch(`${API_BASE_URL}/month`, {
       method: "GET",
       credentials: "include",
     });
 
     if (!res.ok) {
-      throw new Error("이번달 절약 횟수을 가져올 수 없습니다.");
+      throw new Error("이번달 절약을 가져올 수 없습니다.");
     }
 
     return res.json();
   }
 
   // 최근 3가지 절약 기록
-  async getLatestRecords(userId: number): Promise<SavingRecord[]> {
-    const res = await fetch(`${API_BASE_URL}/latest/${userId}`, {
+  async getLatestRecords(): Promise<SavingRecord[]> {
+    const res = await fetch(`${API_BASE_URL}/latest`, {
       method: "GET",
       credentials: "include",
     });
@@ -85,65 +84,23 @@ class SavingRecordService {
     return res.json();
   }
 
-  // 사용자별 절약 기록 조회
-  async getUserSavingRecords(userId: number): Promise<SavingRecord[]> {
-    const response = await fetch(`${API_BASE_URL}/user/${userId}`, {
+  // 일주일 절약 통계
+  async getWeekRecords(): Promise<{ [key: string]: number }[]> {
+    const response = await fetch(`${API_BASE_URL}/week`, {
       method: "GET",
       credentials: "include",
     });
 
     if (!response.ok) {
-      throw new Error("절약 기록을 가져올 수 없습니다.");
-    }
-
-    return response.json();
-  }
-
-  // 오늘의 절약 기록
-  async getTodaySavingRecords(userId: number): Promise<SavingRecord[]> {
-    const response = await fetch(`${API_BASE_URL}/today/${userId}`, {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error("오늘의 절약 기록을 가져올 수 없습니다.");
-    }
-
-    return response.json();
-  }
-
-  // 이번 달 절약 기록
-  async getThisMonthSavingRecords(userId: number): Promise<SavingRecord[]> {
-    const response = await fetch(`${API_BASE_URL}/month/${userId}`, {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error("이번 달 절약 기록을 가져올 수 없습니다.");
-    }
-
-    return response.json();
-  }
-
-  // 총 절약 금액 조회
-  async getTotalSavingsAmount(userId: number): Promise<number> {
-    const response = await fetch(`${API_BASE_URL}/all/${userId}`, {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error("총 절약 금액을 가져올 수 없습니다.");
+      throw new Error("최근 일주일 절약 통계를 가져올 수 없습니다.");
     }
 
     return response.json();
   }
 
   // 카테고리별 통계
-  async getCategorySavingsStats(userId: number): Promise<CategoryStats[]> {
-    const response = await fetch(`${API_BASE_URL}/stats/category/${userId}`, {
+  async getCategorySavingsStats(): Promise<CategoryStats[]> {
+    const response = await fetch(`${API_BASE_URL}/category`, {
       method: "GET",
       credentials: "include",
     });
