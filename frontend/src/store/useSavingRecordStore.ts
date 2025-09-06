@@ -7,6 +7,7 @@ import type {
   RecordInfo,
 } from "../types/user";
 import { savingRecordService } from "../services/savingRecordService";
+import { useAuthStore } from "./useAuthStore";
 
 interface SavingRecordState {
   records: SavingRecord[];
@@ -56,6 +57,26 @@ export const useSavingRecordStore = create<SavingRecordState>()(
             records: [newRecord, ...currentRecords],
             isLoading: false,
           });
+
+          // 관련 데이터들을 새로고침
+          const actions = get();
+          await Promise.all([
+            actions.fetchTodayRecords(),
+            actions.fetchMonthRecords(),
+            actions.fetchLatestRecords(),
+            actions.fetchWeekRecords(),
+            actions.fetchCategoryStats(),
+          ]);
+
+          // 사용자 정보도 새로고침 (totalSavings 업데이트)
+          try {
+            await useAuthStore.getState().getCurrentUser();
+            console.log("✅ 사용자 정보 새로고침 완료");
+          } catch (error) {
+            console.warn("⚠️ 사용자 정보 새로고침 실패:", error);
+          }
+
+          console.log("✅ 절약 등록 후 모든 데이터 새로고침 완료");
         } catch (error) {
           set({
             isLoading: false,

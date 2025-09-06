@@ -117,18 +117,33 @@ public class OAuth2Controller {
     @PostMapping("/monthly-target")
     public ResponseEntity<?> updateMonthlyTarget(@RequestBody Long monthlyTarget,
                                                  Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("error", "Not authenticated", "message", "Please login first"));
+        }
+
+        String email = null;
+
         try {
-            OidcUser oidcUser = (OidcUser) authentication.getPrincipal();
-            String email = oidcUser.getEmail();
+            // JWT 기반 인증
+            if (authentication.getPrincipal() instanceof String jwtEmail) {
+                email = jwtEmail;
+            }
+            // OAuth2 기반 인증
+            else if (authentication.getPrincipal() instanceof OidcUser oidcUser) {
+                email = oidcUser.getEmail();
+            }
 
-            oAuth2UserService.updateMonthlyTarget(email, monthlyTarget);
+            if (email != null) {
+                oAuth2UserService.updateMonthlyTarget(email, monthlyTarget);
+                return ResponseEntity.ok(Map.of("message", "월간 절약 목표 설정이 완료되었습니다."));
+            } else {
+                return ResponseEntity.status(400)
+                        .body(Map.of("error", "Invalid authentication type"));
+            }
 
-            return ResponseEntity.ok(Map.of("message", "월간 절약 목표 설정이 완료되었습니다."));
-
-        } catch (ClassCastException e) {
-            return ResponseEntity.status(400)
-                    .body(Map.of("error", "Invalid authentication type"));
         } catch (Exception e) {
+            System.out.println("월간 목표 설정 실패: " + e.getMessage());
             return ResponseEntity.status(500)
                     .body(Map.of("error", "Failed to update monthly target"));
         }

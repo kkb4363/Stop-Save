@@ -18,10 +18,27 @@ export default function HomePage() {
 
   useEffect(() => {
     if (user?.id) {
+      // 홈페이지 진입 시 항상 최신 데이터 가져오기
+      console.log("🏠 HomePage 데이터 새로고침 시작");
       fetchTodayRecords();
       fetchMonthRecords();
       fetchLatestRecords();
     }
+  }, [user?.id, fetchTodayRecords, fetchMonthRecords, fetchLatestRecords]);
+
+  // 페이지 포커스 시 데이터 새로고침
+  useEffect(() => {
+    const handleFocus = () => {
+      if (user?.id) {
+        console.log("🔄 페이지 포커스 - 데이터 새로고침");
+        fetchTodayRecords();
+        fetchMonthRecords();
+        fetchLatestRecords();
+      }
+    };
+
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
   }, [user?.id, fetchTodayRecords, fetchMonthRecords, fetchLatestRecords]);
 
   const { state } = useLocation();

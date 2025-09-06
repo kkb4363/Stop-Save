@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import { useEffect } from "react";
 import { useAuthStore } from "./store/useAuthStore";
-import { MobileDebugger } from "./components/MobileDebugger";
+// import { MobileDebugger } from "./components/MobileDebugger";
 
 function App() {
   const navigate = useNavigate();
@@ -45,7 +45,7 @@ function App() {
         window.history.replaceState({}, "", window.location.pathname);
       }, 1000);
     }
-  }, [router.pathname]);
+  }, [router.pathname, router.search]);
 
   return (
     <div className="min-h-full bg-gray-50">
@@ -221,7 +221,7 @@ function App() {
       </nav>
 
       {/* 모바일 디버깅 도구 */}
-      <MobileDebugger />
+      {/* <MobileDebugger /> */}
     </div>
   );
 }

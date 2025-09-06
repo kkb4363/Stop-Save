@@ -4,13 +4,22 @@ import { useSavingRecordStore } from "../store/useSavingRecordStore";
 
 export default function StatsPage() {
   const { user } = useAuthStore();
-  const { records, categoryStats, fetchCategoryStats } = useSavingRecordStore();
+  const {
+    records,
+    categoryStats,
+    fetchCategoryStats,
+    fetchAllRecords,
+    fetchWeekRecords,
+  } = useSavingRecordStore();
 
   useEffect(() => {
     if (user?.id) {
+      // 통계 페이지 진입 시 모든 데이터 새로고침
       fetchCategoryStats();
+      fetchAllRecords();
+      fetchWeekRecords();
     }
-  }, [user?.id, fetchCategoryStats]);
+  }, [user?.id, fetchCategoryStats, fetchAllRecords, fetchWeekRecords]);
 
   // 카테고리별 통계 데이터 가공 (백엔드 데이터 사용)
   const categoryData = categoryStats
