@@ -8,10 +8,20 @@ interface DebugInfo {
   data?: any;
 }
 
+interface DeviceInfo {
+  userAgent: string;
+  isMobile: boolean;
+  localStorage: boolean;
+  sessionStorage: boolean;
+  currentUrl: string;
+  hasToken: boolean;
+  tokenPreview: string;
+}
+
 export const MobileDebugger = () => {
   const [logs, setLogs] = useState<DebugInfo[]>([]);
   const [isVisible, setIsVisible] = useState(false);
-  const [deviceInfo, setDeviceInfo] = useState<any>({});
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({} as DeviceInfo);
 
   useEffect(() => {
     // 디바이스 정보 수집
@@ -136,7 +146,7 @@ export const MobileDebugger = () => {
                   tokenStorage.getToken()?.substring(0, 20) + "..." || "none",
                 currentUrl: window.location.href,
               };
-              setDeviceInfo((prev) => ({ ...prev, ...info }));
+              setDeviceInfo((prev: DeviceInfo) => ({ ...prev, ...info }));
             }}
             className="bg-blue-500 text-white px-2 py-1 rounded text-xs mb-2"
           >
