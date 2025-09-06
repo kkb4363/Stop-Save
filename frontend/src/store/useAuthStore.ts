@@ -74,6 +74,7 @@ export const useAuthStore = create<AuthState>()(
 
       getCurrentUser: async () => {
         try {
+          console.log("🔄 getCurrentUser 시작 - isLoading: true");
           set({ isLoading: true, error: null });
           const userResponse = await userService.getCurrentUser();
 
