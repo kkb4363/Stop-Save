@@ -1,4 +1,4 @@
-import { API_BASE_URL_BUILD, API_BASE_URL_DEV } from "../constants/api";
+import { API_BASE_URL_BUILD } from "../constants/api";
 import type {
   User,
   LoginRequest,

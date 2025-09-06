@@ -6,7 +6,6 @@ import com.savebuddy.service.OAuth2UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,8 +19,6 @@ import java.util.Map;
 @RequestMapping("/api/users")
 public class OAuth2Controller {
 
-    @Value("${OAUTH_URL_FRONT_DEV}")
-    private String oauthUrl;
 
     @Autowired
     OAuth2UserService oAuth2UserService;

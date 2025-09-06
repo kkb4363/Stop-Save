@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { User } from "../types/user";
 import { userService } from "../services/userService";
-import { API_BASE_URL_BUILD, API_BASE_URL_DEV } from "../constants/api";
+import { API_BASE_URL_BUILD } from "../constants/api";
 
 interface AuthState {
   user: User | null;
