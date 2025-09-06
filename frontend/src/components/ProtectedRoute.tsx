@@ -24,8 +24,11 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [getCurrentUser]);
 
   useEffect(() => {
+    console.log("ProtectedRoute 상태:", { isLoading, isAuthenticated });
+
     // 로딩이 완료되고 인증되지 않은 경우에만 로그인 페이지로 리다이렉트
     if (!isLoading && !isAuthenticated) {
+      console.log("인증되지 않음 - 로그인 페이지로 리다이렉트");
       // OAuth2 로그인 후 잠시 대기하여 세션 설정 시간 확보
       const timer = setTimeout(() => {
         navigate("/login");
