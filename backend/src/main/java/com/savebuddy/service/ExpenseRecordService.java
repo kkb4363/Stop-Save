@@ -49,7 +49,7 @@ public class ExpenseRecordService {
         ExpenseRecord expenseRecord = expenseRecordRepository.save(record);
 
         // 사용자 총 소비 금액
-        user.setTotalExpense(user.getTotalExpense() + amount);
+        user.setTotalExpense(Optional.ofNullable(user.getTotalExpense()).orElse(0L) + amount);
 //        user.setExperience(user.getExperience() + 10);
         oAuth2UserRepository.save(user);
 

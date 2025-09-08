@@ -15,6 +15,7 @@ public class UserDto {
     private Integer level;
     private Integer experience;
     private Long totalSavings;
+    private Long totalExpense;
     private Long monthlyTarget;
     private String picture;
     private String sub;

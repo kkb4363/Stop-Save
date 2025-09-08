@@ -49,6 +49,7 @@ public class OAuth2Controller {
                             .level(user.getLevel())
                             .experience(user.getExperience())
                             .totalSavings(user.getTotalSavings())
+                            .totalExpense(user.getTotalExpense())
                             .monthlyTarget(user.getMonthlyTarget())
                             .picture(user.getPicture())
                             .sub(email)
