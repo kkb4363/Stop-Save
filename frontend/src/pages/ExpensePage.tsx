@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
+import { useExpenseRecordStore } from "../store/useExpenseRecordStore";
 
 // const QUICK_EXPENSES = [
 //   { label: "커피", amount: 4500, category: "음식", icon: "☕" },
@@ -29,6 +30,7 @@ export default function ExpensePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { createRecord } = useExpenseRecordStore();
 
   const handleSubmit = async () => {
     if (amount === "" || amount <= 0 || !user) return;
@@ -36,17 +38,12 @@ export default function ExpensePage() {
     setIsSubmitting(true);
 
     try {
-      // TODO: 소비 기록 API 연결
-      console.log("소비 기록 등록:", {
-        userId: user.id,
+      await createRecord({
         itemName: memo || category,
         amount: Number(amount),
         category,
         memo,
       });
-
-      // 임시로 성공 처리
-      alert(`${amount.toLocaleString()}원 소비가 등록되었습니다!`);
 
       // 성공 피드백
       setAmount("");

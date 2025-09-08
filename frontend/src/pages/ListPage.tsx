@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useSavingRecordStore } from "../store/useSavingRecordStore";
+import { useExpenseRecordStore } from "../store/useExpenseRecordStore";
 import { Link } from "react-router-dom";
-import type { SavingRecord } from "../types/user";
+import type { SavingRecord, ExpenseRecord } from "../types/user";
 
 export default function ListPage() {
   const { user } = useAuthStore();
   const { records, fetchAllRecords, deleteRecord, isLoading } =
     useSavingRecordStore();
+
+  const {
+    records: expenseRecords,
+    fetchAllRecords: fetchAllExpenseRecords,
+    deleteRecord: deleteExpenseRecord,
+    isLoading: isExpenseLoading,
+  } = useExpenseRecordStore();
 
   // 필터 상태 제거
 
@@ -24,12 +32,12 @@ export default function ListPage() {
 
   // 삭제 관련 상태
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [recordToDelete, setRecordToDelete] = useState<SavingRecord | null>(
-    null
-  );
+  const [recordToDelete, setRecordToDelete] = useState<
+    SavingRecord | ExpenseRecord | null
+  >(null);
 
   // 클릭으로 삭제 모달 열기
-  const handleRecordClick = (record: SavingRecord) => {
+  const handleRecordClick = (record: SavingRecord | ExpenseRecord) => {
     setRecordToDelete(record);
     setShowDeleteModal(true);
   };
@@ -39,13 +47,23 @@ export default function ListPage() {
     if (!recordToDelete) return;
 
     try {
-      await deleteRecord(recordToDelete.id);
+      if (activeTab === "savings") {
+        await deleteRecord(recordToDelete.id);
+        console.log("✅ 절약 기록 삭제 완료");
+      } else {
+        await deleteExpenseRecord(recordToDelete.id);
+        console.log("✅ 소비 기록 삭제 완료");
+      }
       setShowDeleteModal(false);
       setRecordToDelete(null);
-      console.log("✅ 절약 기록 삭제 완료");
     } catch (error) {
-      console.error("❌ 절약 기록 삭제 실패:", error);
-      alert("절약 기록 삭제에 실패했습니다.");
+      console.error(
+        `❌ ${activeTab === "savings" ? "절약" : "소비"} 기록 삭제 실패:`,
+        error
+      );
+      alert(
+        `${activeTab === "savings" ? "절약" : "소비"} 기록 삭제에 실패했습니다.`
+      );
     }
   };
 
@@ -59,8 +77,9 @@ export default function ListPage() {
   useEffect(() => {
     if (user?.id) {
       fetchAllRecords();
+      fetchAllExpenseRecords();
     }
-  }, [user?.id, fetchAllRecords]);
+  }, [user?.id, fetchAllRecords, fetchAllExpenseRecords]);
 
   // 달력 관련 함수들
   const getDaysInMonth = (date: Date) => {
@@ -96,8 +115,8 @@ export default function ListPage() {
     setShowAll(false);
   };
 
-  // 현재 탭에 따른 데이터 필터링 (절약만 현재 구현, 소비는 백엔드 연동 후 추가)
-  const currentTabRecords = activeTab === "savings" ? records : []; // 소비 데이터는 백엔드 연동 후 추가
+  // 현재 탭에 따른 데이터 필터링
+  const currentTabRecords = activeTab === "savings" ? records : expenseRecords;
 
   // 현재 월의 모든 기록들 (달력에 점 표시용)
   const currentMonthRecords = currentTabRecords.filter((record) => {

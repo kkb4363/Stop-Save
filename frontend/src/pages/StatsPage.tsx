@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useSavingRecordStore } from "../store/useSavingRecordStore";
+import { useExpenseRecordStore } from "../store/useExpenseRecordStore";
 
 export default function StatsPage() {
   const { user } = useAuthStore();
@@ -12,6 +13,14 @@ export default function StatsPage() {
     fetchWeekRecords,
   } = useSavingRecordStore();
 
+  const {
+    records: expenseRecords,
+    categoryStats: expenseCategoryStats,
+    fetchCategoryStats: fetchExpenseCategoryStats,
+    fetchAllRecords: fetchAllExpenseRecords,
+    fetchWeekRecords: fetchExpenseWeekRecords,
+  } = useExpenseRecordStore();
+
   // 월 선택 상태
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
@@ -22,33 +31,63 @@ export default function StatsPage() {
       fetchCategoryStats();
       fetchAllRecords();
       fetchWeekRecords();
+      // 소비 데이터
+      fetchExpenseCategoryStats();
+      fetchAllExpenseRecords();
+      fetchExpenseWeekRecords();
     }
-  }, [user?.id, fetchCategoryStats, fetchAllRecords, fetchWeekRecords]);
+  }, [
+    user?.id,
+    fetchCategoryStats,
+    fetchAllRecords,
+    fetchWeekRecords,
+    fetchExpenseCategoryStats,
+    fetchAllExpenseRecords,
+    fetchExpenseWeekRecords,
+  ]);
 
-  // 카테고리별 통계 데이터 가공 (백엔드 데이터 사용)
-  const categoryData = categoryStats
-    .map((stat) => ({
-      category: stat.category,
-      savingsAmount: stat.amount,
-      expenseAmount: 0, // 백엔드에서 소비 데이터 가져올 예정
-      totalAmount: stat.amount + 0,
-      icon:
-        stat.category === "음식"
-          ? "🍔"
-          : stat.category === "교통"
-          ? "🚗"
-          : stat.category === "쇼핑"
-          ? "🛍️"
-          : stat.category === "엔터테인먼트"
-          ? "🎬"
-          : stat.category === "생필품"
-          ? "🛒"
-          : stat.category === "의료"
-          ? "🏥"
-          : stat.category === "교육"
-          ? "📚"
-          : "💡",
-    }))
+  // 모든 카테고리 목록 생성 (절약 + 소비)
+  const allCategories = new Set([
+    ...categoryStats.map((stat) => stat.category),
+    ...expenseCategoryStats.map((stat) => stat.category),
+  ]);
+
+  // 카테고리별 통계 데이터 가공
+  const categoryData = Array.from(allCategories)
+    .map((category) => {
+      const savingsStat = categoryStats.find(
+        (stat) => stat.category === category
+      );
+      const expenseStat = expenseCategoryStats.find(
+        (stat) => stat.category === category
+      );
+
+      const savingsAmount = savingsStat?.amount || 0;
+      const expenseAmount = expenseStat?.amount || 0;
+
+      return {
+        category,
+        savingsAmount,
+        expenseAmount,
+        totalAmount: savingsAmount + expenseAmount,
+        icon:
+          category === "음식"
+            ? "🍔"
+            : category === "교통"
+            ? "🚗"
+            : category === "쇼핑"
+            ? "🛍️"
+            : category === "엔터테인먼트"
+            ? "🎬"
+            : category === "생필품"
+            ? "🛒"
+            : category === "의료"
+            ? "🏥"
+            : category === "교육"
+            ? "📚"
+            : "💡",
+      };
+    })
     .sort((a, b) => b.totalAmount - a.totalAmount);
 
   // 모든 카테고리의 최대 금액 (차트 스케일용)
@@ -59,9 +98,12 @@ export default function StatsPage() {
     1
   );
 
-  // 선택된 월의 데이터 (임시로 하드코딩, 백엔드 연동 시 실제 데이터로 교체)
+  // 선택된 월의 데이터
   const savingsAmount = user?.totalSavings || 0;
-  const expenseAmount = 0; // 백엔드에서 소비 데이터 가져올 예정
+  const expenseAmount = expenseRecords.reduce(
+    (sum, record) => sum + record.amount,
+    0
+  );
   const totalAmount = savingsAmount + expenseAmount;
 
   // 원형 차트를 위한 데이터
@@ -110,9 +152,13 @@ export default function StatsPage() {
         </div>
         <div className="card p-4 text-center">
           <div className="text-2xl mb-2">💳</div>
-          <div className="text-lg font-bold text-red-600">0원</div>
+          <div className="text-lg font-bold text-red-600">
+            {expenseAmount.toLocaleString()}원
+          </div>
           <div className="text-xs text-gray-500 mb-1">총 소비 금액</div>
-          <div className="text-sm font-medium text-gray-700">0회 소비</div>
+          <div className="text-sm font-medium text-gray-700">
+            {expenseRecords.length}회 소비
+          </div>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useSavingRecordStore } from "../store/useSavingRecordStore";
+import { useExpenseRecordStore } from "../store/useExpenseRecordStore";
 import ReactConfetti from "react-confetti";
 
 export default function HomePage() {
@@ -16,29 +17,64 @@ export default function HomePage() {
     fetchLatestRecords,
   } = useSavingRecordStore();
 
+  const {
+    todayRecords: expenseTodayRecords,
+    monthRecords: expenseMonthRecords,
+    latestRecords: expenseLatestRecords,
+    fetchTodayRecords: fetchExpenseTodayRecords,
+    fetchMonthRecords: fetchExpenseMonthRecords,
+    fetchLatestRecords: fetchExpenseLatestRecords,
+  } = useExpenseRecordStore();
+
   useEffect(() => {
     if (user?.id) {
       console.log("🏠 HomePage 데이터 새로고침 시작");
+      // 절약 데이터
       fetchTodayRecords();
       fetchMonthRecords();
       fetchLatestRecords();
+      // 소비 데이터
+      fetchExpenseTodayRecords();
+      fetchExpenseMonthRecords();
+      fetchExpenseLatestRecords();
     }
-  }, [user?.id, fetchTodayRecords, fetchMonthRecords, fetchLatestRecords]);
+  }, [
+    user?.id,
+    fetchTodayRecords,
+    fetchMonthRecords,
+    fetchLatestRecords,
+    fetchExpenseTodayRecords,
+    fetchExpenseMonthRecords,
+    fetchExpenseLatestRecords,
+  ]);
 
   // 페이지 포커스 시 데이터 새로고침
   useEffect(() => {
     const handleFocus = () => {
       if (user?.id) {
         console.log("🔄 페이지 포커스 - 데이터 새로고침");
+        // 절약 데이터
         fetchTodayRecords();
         fetchMonthRecords();
         fetchLatestRecords();
+        // 소비 데이터
+        fetchExpenseTodayRecords();
+        fetchExpenseMonthRecords();
+        fetchExpenseLatestRecords();
       }
     };
 
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
-  }, [user?.id, fetchTodayRecords, fetchMonthRecords, fetchLatestRecords]);
+  }, [
+    user?.id,
+    fetchTodayRecords,
+    fetchMonthRecords,
+    fetchLatestRecords,
+    fetchExpenseTodayRecords,
+    fetchExpenseMonthRecords,
+    fetchExpenseLatestRecords,
+  ]);
 
   const { state } = useLocation();
   const success = state?.success;
@@ -89,9 +125,9 @@ export default function HomePage() {
         />
         <StatCard
           title="오늘의 소비"
-          value={`${monthRecords?.totalAmount?.toLocaleString()}원`}
+          value={`${expenseTodayRecords?.totalAmount?.toLocaleString() || 0}원`}
           icon="💸"
-          trend={`${monthRecords?.count}회 소비`}
+          trend={`${expenseTodayRecords?.count || 0}회 소비`}
         />
       </div>
 
@@ -99,14 +135,6 @@ export default function HomePage() {
       <div className="card p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-900">최근 절약</h3>
-          <div className="flex items-center gap-2">
-            <Link
-              to="/list"
-              className="text-xs text-brand-600 hover:text-brand-700"
-            >
-              전체보기
-            </Link>
-          </div>
         </div>
 
         {latestRecords?.length === 0 ? (
@@ -168,18 +196,9 @@ export default function HomePage() {
       <div className="card p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-gray-900">최근 소비</h3>
-          <div className="flex items-center gap-2">
-            <Link
-              to="/list"
-              className="text-xs text-red-600 hover:text-red-700"
-            >
-              전체보기
-            </Link>
-          </div>
         </div>
 
-        {/* 임시로 빈 데이터 상태 - 백엔드 연동 시 실제 소비 데이터로 교체 */}
-        {true ? (
+        {expenseLatestRecords?.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-2">💳</div>
             <p className="text-sm text-gray-500 mb-4">
@@ -194,8 +213,7 @@ export default function HomePage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {/* 실제 소비 데이터가 있을 때의 구조 - 백엔드 연동 시 사용 */}
-            {[].map((expense: any) => (
+            {expenseLatestRecords?.map((expense) => (
               <div
                 key={expense.id}
                 className="flex items-center justify-between"
@@ -239,7 +257,7 @@ export default function HomePage() {
       </div>
 
       {/* 빠른 액션 */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <Link to="/record" className="card card-hover p-4 text-center">
           <div className="text-2xl mb-2">🐷</div>
           <p className="text-sm font-medium text-gray-900">절약 등록</p>
@@ -247,6 +265,10 @@ export default function HomePage() {
         <Link to="/expense" className="card card-hover p-4 text-center">
           <div className="text-2xl mb-2">💳</div>
           <p className="text-sm font-medium text-gray-900">소비 등록</p>
+        </Link>
+        <Link to="/list" className="card card-hover p-4 text-center">
+          <div className="text-2xl mb-2">📋</div>
+          <p className="text-sm font-medium text-gray-900">전체보기</p>
         </Link>
       </div>
     </div>
