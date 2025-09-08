@@ -553,7 +553,7 @@ export default function ListPage() {
             <div className="text-center mb-6">
               <div className="text-4xl mb-4">🗑️</div>
               <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                이 절약 기록을 삭제하시겠습니까?
+                이 기록을 삭제하시겠습니까?
               </h3>
               <div className="text-sm text-gray-600 mb-2">
                 <strong>
