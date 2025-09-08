@@ -71,6 +71,24 @@ export interface SavingRecordRequest {
   memo?: string;
 }
 
+export interface ExpenseRecord {
+  id: number;
+  user: User;
+  itemName: string;
+  amount: number;
+  category: string;
+  memo?: string;
+  createdAt: string;
+}
+
+export interface ExpenseRecordRequest {
+  userId: number;
+  itemName: string;
+  amount: number;
+  category: string;
+  memo?: string;
+}
+
 export interface CategoryStats {
   category: string;
   amount: number;

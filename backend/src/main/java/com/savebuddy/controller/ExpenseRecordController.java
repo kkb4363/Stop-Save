@@ -1,8 +1,12 @@
 package com.savebuddy.controller;
 
+import com.savebuddy.dto.ExpenseRecordDto;
+import com.savebuddy.dto.ExpenseRecordInfoDto;
 import com.savebuddy.dto.RecordInfoDto;
 import com.savebuddy.dto.SavingRecordDto;
+import com.savebuddy.entity.ExpenseRecord;
 import com.savebuddy.entity.SavingRecord;
+import com.savebuddy.service.ExpenseRecordService;
 import com.savebuddy.service.SavingRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +19,11 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/savings")
-public class SavingRecordController {
+@RequestMapping("/api/expense")
+public class ExpenseRecordController {
 
     @Autowired
-    private SavingRecordService savingRecordService;
+    private ExpenseRecordService expenseRecordService;
 
     /**
      * Authentication에서 이메일을 추출하는 유틸리티 메서드
@@ -42,11 +46,11 @@ public class SavingRecordController {
     }
 
     /**
-     * 절약 등록
+     * 소비 등록
      * @return
      */
     @PostMapping("/record")
-    public ResponseEntity<?> createSavingRecord(@RequestBody SavingRecordDto request, Authentication authentication) {
+    public ResponseEntity<?> createExpenseRecord(@RequestBody ExpenseRecordDto request, Authentication authentication) {
         try {
             String email = getEmailFromAuthentication(authentication);
             if (email == null) {
@@ -54,7 +58,7 @@ public class SavingRecordController {
                         .body(Map.of("error", "Unauthorized", "message", "Authentication required"));
             }
 
-            SavingRecord record = savingRecordService.createSavingRecord(
+            ExpenseRecord record = expenseRecordService.createExpenseRecord(
                     email,
                     request.getItemName(),
                     request.getAmount(),
@@ -68,7 +72,7 @@ public class SavingRecordController {
     }
 
     /**
-     * 전체 절약 조회
+     * 전체 소비 조회
      * @return
      */
     @GetMapping("/all")
@@ -80,7 +84,7 @@ public class SavingRecordController {
                         .body(Map.of("error", "Unauthorized", "message", "Authentication required"));
             }
 
-            List<SavingRecord> results = savingRecordService.allRecords(email);
+            List<ExpenseRecord> results = expenseRecordService.allRecords(email);
             return ResponseEntity.ok(results);
 
         } catch (Exception e) {
@@ -91,7 +95,7 @@ public class SavingRecordController {
 
 
     /**
-     * 오늘의 절약 조회
+     * 오늘의 소비 조회
      * @return
      */
     @GetMapping("/today")
@@ -103,7 +107,7 @@ public class SavingRecordController {
                         .body(Map.of("error", "Unauthorized", "message", "Authentication required"));
             }
 
-            RecordInfoDto results = savingRecordService.todayRecords(email);
+            ExpenseRecordInfoDto results = expenseRecordService.todayRecords(email);
             return ResponseEntity.ok(results);
 
         } catch (Exception e) {
@@ -113,7 +117,7 @@ public class SavingRecordController {
     }
 
     /**
-     * 이번달 절약 조회
+     * 이번달 소비 조회
      * @return
      */
     @GetMapping("/month")
@@ -125,7 +129,7 @@ public class SavingRecordController {
                         .body(Map.of("error", "Unauthorized", "message", "Authentication required"));
             }
 
-            RecordInfoDto results = savingRecordService.monthRecords(email);
+            ExpenseRecordInfoDto results = expenseRecordService.monthRecords(email);
             return ResponseEntity.ok(results);
 
         } catch (Exception e) {
@@ -136,7 +140,7 @@ public class SavingRecordController {
 
 
     /**
-     * 최근 3가지 절약 기록
+     * 최근 3가지 소비 기록
      * @return
      */
     @GetMapping("/latest")
@@ -148,7 +152,7 @@ public class SavingRecordController {
                         .body(Map.of("error", "Unauthorized", "message", "Authentication required"));
             }
 
-            List<SavingRecord> results = savingRecordService.getLatestRecords(email);
+            List<ExpenseRecord> results = expenseRecordService.getLatestRecords(email);
             return ResponseEntity.ok(results);
 
         } catch (Exception e) {
@@ -158,7 +162,7 @@ public class SavingRecordController {
     }
 
     /**
-     * 최근 일주일 절약 통계
+     * 최근 일주일 소비 통계
      * @return
      */
     @GetMapping("/week")
@@ -170,7 +174,7 @@ public class SavingRecordController {
                         .body(Map.of("error", "Unauthorized", "message", "Authentication required"));
             }
 
-            Map<DayOfWeek, Long> results = savingRecordService.getWeekRecordsStatus(email);
+            Map<DayOfWeek, Long> results = expenseRecordService.getWeekRecordsStatus(email);
             return ResponseEntity.ok(results);
 
         } catch (Exception e) {
@@ -192,7 +196,7 @@ public class SavingRecordController {
                         .body(Map.of("error", "Unauthorized", "message", "Authentication required"));
             }
 
-            List<Object[]> results = savingRecordService.getCategorySavingsStats(email);
+            List<Object[]> results = expenseRecordService.getCategorySavingsStats(email);
             return ResponseEntity.ok(results);
 
         } catch (Exception e) {
@@ -201,7 +205,7 @@ public class SavingRecordController {
         }
     }
 
-    // 절약 기록 삭제
+    // 소비 기록 삭제
     @DeleteMapping("/{recordId}")
     public ResponseEntity<?> deleteSavingRecord(@PathVariable Long recordId, Authentication authentication) {
         try {
@@ -211,7 +215,7 @@ public class SavingRecordController {
                         .body(Map.of("error", "Unauthorized", "message", "Authentication required"));
             }
 
-            savingRecordService.deleteSavingRecord(recordId, email);
+            expenseRecordService.deleteExpenseRecord(recordId, email);
             return ResponseEntity.ok("절약 기록이 삭제되었습니다.");
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());

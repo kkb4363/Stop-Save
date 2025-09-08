@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { useSavingRecordStore } from "../store/useSavingRecordStore";
+import { useExpenseRecordStore } from "../store/useExpenseRecordStore";
 
-// const QUICK_ITEMS = [
+// const QUICK_EXPENSES = [
 //   { label: "커피", amount: 4500, category: "음식", icon: "☕" },
-//   { label: "택시", amount: 5000, category: "교통", icon: "🚕" },
-//   { label: "배달", amount: 20000, category: "음식", icon: "🍕" },
-//   { label: "간식", amount: 2500, category: "음식", icon: "🍿" },
-//   { label: "영화", amount: 10000, category: "엔터테인먼트", icon: "🎬" },
-//   { label: "쇼핑", amount: 30000, category: "쇼핑", icon: "🛍️" },
+//   { label: "점심", amount: 12000, category: "음식", icon: "🍱" },
+//   { label: "택시", amount: 8000, category: "교통", icon: "🚕" },
+//   { label: "편의점", amount: 3000, category: "생필품", icon: "🏪" },
+//   { label: "영화", amount: 15000, category: "엔터테인먼트", icon: "🎬" },
+//   { label: "옷", amount: 50000, category: "쇼핑", icon: "👕" },
 // ];
 
-const CATEGORIES = [
+const EXPENSE_CATEGORIES = [
   { value: "음식", icon: "🍔" },
   { value: "교통", icon: "🚗" },
   { value: "쇼핑", icon: "🛍️" },
@@ -23,14 +23,14 @@ const CATEGORIES = [
   { value: "기타", icon: "💳" },
 ];
 
-export default function RecordPage() {
+export default function ExpensePage() {
   const [amount, setAmount] = useState<number | "">("");
   const [category, setCategory] = useState("기타");
   const [memo, setMemo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { createRecord } = useSavingRecordStore();
   const navigate = useNavigate();
   const { user } = useAuthStore();
+  const { createRecord } = useExpenseRecordStore();
 
   const handleSubmit = async () => {
     if (amount === "" || amount <= 0 || !user) return;
@@ -39,7 +39,6 @@ export default function RecordPage() {
 
     try {
       await createRecord({
-        userId: user.id,
         itemName: memo || category,
         amount: Number(amount),
         category,
@@ -55,12 +54,13 @@ export default function RecordPage() {
       navigate("/", {
         state: {
           success: true,
+          type: "expense",
         },
       });
     } catch (error) {
-      console.error("절약 기록 등록 실패:", error);
+      console.error("소비 기록 등록 실패:", error);
       setIsSubmitting(false);
-      // 에러 처리는 스토어에서 관리
+      alert("소비 기록 등록에 실패했습니다.");
     }
   };
 
@@ -68,9 +68,9 @@ export default function RecordPage() {
     <div className="space-y-6 pt-6">
       {/* 헤더 */}
       <div className="text-center">
-        <h1 className="text-xl font-bold text-gray-900 mb-2">절약 등록</h1>
+        <h1 className="text-xl font-bold text-gray-900 mb-2">소비 등록</h1>
         <p className="text-sm text-gray-600">
-          {user?.nickname || user?.username || "사용자"}님, 오늘 참은 소비를
+          {user?.nickname || user?.username || "사용자"}님, 오늘의 소비를
           기록해보세요
         </p>
       </div>
@@ -79,14 +79,14 @@ export default function RecordPage() {
       {/* <div className="card p-4">
         <h3 className="font-semibold text-gray-900 mb-3">빠른 선택</h3>
         <div className="grid grid-cols-2 gap-3">
-          {QUICK_ITEMS.map((item) => (
+          {QUICK_EXPENSES.map((item) => (
             <button
               key={item.label}
               className="card-hover p-3 rounded-xl border border-gray-200 bg-white text-left transition-all"
               onClick={() => {
                 setAmount(item.amount);
                 setCategory(item.category);
-                setMemo(`${item.label} 참음`);
+                setMemo(`${item.label} 구매`);
               }}
             >
               <div className="flex items-center gap-3">
@@ -95,8 +95,8 @@ export default function RecordPage() {
                   <div className="text-sm font-medium text-gray-900">
                     {item.label}
                   </div>
-                  <div className="text-xs text-brand-600 font-semibold">
-                    +{item.amount.toLocaleString()}원
+                  <div className="text-xs text-red-600 font-semibold">
+                    -{item.amount.toLocaleString()}원
                   </div>
                 </div>
               </div>
@@ -112,7 +112,7 @@ export default function RecordPage() {
         {/* 금액 입력 */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            절약 금액 <span className="text-red-500">*</span>
+            소비 금액 <span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <input
@@ -134,12 +134,12 @@ export default function RecordPage() {
             카테고리
           </label>
           <div className="grid grid-cols-4 gap-2">
-            {CATEGORIES.map((cat) => (
+            {EXPENSE_CATEGORIES.map((cat) => (
               <button
                 key={cat.value}
-                className={`p-3 rounded-xl border transition-all ${
+                className={`p-3 rounded-xl border text-center transition-colors ${
                   category === cat.value
-                    ? "border-brand-500 bg-brand-50 text-brand-700"
+                    ? "border-red-500 bg-red-50 text-red-700"
                     : "border-gray-200 bg-white hover:bg-gray-50"
                 }`}
                 onClick={() => setCategory(cat.value)}
@@ -158,8 +158,8 @@ export default function RecordPage() {
           </label>
           <input
             type="text"
-            className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-brand-500 focus:bg-white"
-            placeholder="어떤 소비를 참았나요?"
+            className="w-full bg-gray-50 border-0 rounded-xl p-4 focus:ring-2 focus:ring-red-500 focus:bg-white"
+            placeholder="무엇을 구매하셨나요?"
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
           />
@@ -173,19 +173,17 @@ export default function RecordPage() {
           disabled={amount === "" || amount <= 0 || isSubmitting}
           className={`w-full py-4 rounded-2xl font-semibold text-lg transition-all ${
             amount && amount > 0 && !isSubmitting
-              ? "gradient-primary text-white active:scale-95"
+              ? "bg-gradient-to-r from-red-500 to-red-600 text-white active:scale-95 shadow-lg"
               : "bg-gray-200 text-gray-400 cursor-not-allowed"
           }`}
         >
           {isSubmitting ? (
             <div className="flex items-center justify-center gap-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              저장 중...
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              등록 중...
             </div>
           ) : (
-            `${
-              amount ? `${Number(amount).toLocaleString()}원` : "0원"
-            } 절약 등록`
+            `${amount ? amount.toLocaleString() : "0"}원 소비 등록`
           )}
         </button>
       </div>

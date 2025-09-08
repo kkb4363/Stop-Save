@@ -30,10 +30,10 @@ import java.util.Arrays;
 @Configuration
 public class OAuth2LoginConfig {
 
-    @Value("${OAUTH_URL_BACK_BUILD}")
+    @Value("${OAUTH_URL_BACK_DEV}")
     private String oauthUrlDev;
 
-    @Value("${OAUTH_URL_FRONT_BUILD}")
+    @Value("${OAUTH_URL_FRONT_DEV}")
     private String frontendUrl;
 
     @Value("${GOOGLE_ID}")
@@ -79,7 +79,7 @@ public class OAuth2LoginConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("https://stop-save.vercel.app")); // 프론트엔드 URL
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:5173")); // 프론트엔드 URL
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true); // 쿠키/세션 허용

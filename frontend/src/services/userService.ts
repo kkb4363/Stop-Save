@@ -1,4 +1,4 @@
-import { API_BASE_URL_BUILD } from "../constants/api";
+import { API_BASE_URL_BUILD, API_BASE_URL_DEV } from "../constants/api";
 import { apiClient } from "../utils/apiClient";
 import { tokenStorage } from "../utils/tokenStorage";
 import type {
@@ -9,7 +9,7 @@ import type {
   UserResponse,
 } from "../types/user";
 
-const API_BASE_URL = `${API_BASE_URL_BUILD}/api/users`;
+const API_BASE_URL = `${API_BASE_URL_DEV}/api/users`;
 
 class UserService {
   // 사용자 회원가입
