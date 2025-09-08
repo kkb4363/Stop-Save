@@ -138,12 +138,10 @@ export default function SettingsPage() {
               <h3 className="font-semibold text-gray-900">
                 {user?.nickname || user?.username || "사용자"}님
               </h3>
-              <p className="text-sm text-gray-600">
-                절약 레벨 {user?.level || 1}
-              </p>
+
               <p className="text-xs text-gray-500">
                 총 {user?.totalSavings.toLocaleString()}원 절약 •{" "}
-                {records.length}회 기록
+                {user?.totalExpense.toLocaleString()}원 소비
               </p>
             </div>
             {/* <button className="text-sm text-brand-600">편집</button> */}

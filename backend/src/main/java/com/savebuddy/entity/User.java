@@ -35,6 +35,8 @@ public class User {
 
     private Long totalSavings = 0L;
 
+    private Long totalExpense = 0L;
+
     private Long monthlyTarget = 100000L; // 기본 월간 목표: 10만원
 
     @CreationTimestamp
@@ -52,12 +54,7 @@ public class User {
     private String loginType = "GOOGLE"; // 로그인 타입
 
 
-    // OAuth2 사용자 정보 업데이트 메서드
-    public User update(String nickname, String picture) {
-        this.nickname = nickname;
-        this.picture = picture;
-        return this;
-    }
+
 
     // 내부 enum 정의
     public enum Role {

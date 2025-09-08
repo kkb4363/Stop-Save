@@ -6,6 +6,7 @@ export interface User {
   level: number;
   experience: number;
   totalSavings: number;
+  totalExpense: number;
   monthlyTarget: number;
   picture?: string;
   loginType: "GOOGLE" | "LOCAL";
@@ -33,6 +34,7 @@ export interface UserResponse {
   level: number;
   experience: number;
   totalSavings: number;
+  totalExpense: number;
   monthlyTarget: number;
   picture?: string;
   loginType: "GOOGLE" | "LOCAL";
