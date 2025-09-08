@@ -140,8 +140,8 @@ export default function SettingsPage() {
               </h3>
 
               <p className="text-xs text-gray-500">
-                총 {user?.totalSavings.toLocaleString()}원 절약 •{" "}
-                {user?.totalExpense.toLocaleString()}원 소비
+                총 {user?.totalSavings?.toLocaleString()}원 절약 •{" "}
+                {user?.totalExpense?.toLocaleString()}원 소비
               </p>
             </div>
             {/* <button className="text-sm text-brand-600">편집</button> */}
