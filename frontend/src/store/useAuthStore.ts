@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import type { User } from "../types/user";
 import { userService } from "../services/userService";
 import { tokenStorage } from "../utils/tokenStorage";
-import { API_BASE_URL_DEV } from "../constants/api";
+import { API_BASE_URL_BUILD } from "../constants/api";
 
 interface AuthState {
   user: User | null;
@@ -34,7 +34,7 @@ export const useAuthStore = create<AuthState>()(
 
           // Google OAuth2 로그인을 위해 백엔드 OAuth2 엔드포인트로 리다이렉트
           // Spring Security OAuth2가 자동으로 처리하고, 성공 시 프론트엔드로 리다이렉트
-          const oauthUrl = `${API_BASE_URL_DEV}/oauth2/authorization/google`;
+          const oauthUrl = `${API_BASE_URL_BUILD}/oauth2/authorization/google`;
           console.log("🔗 OAuth URL로 리다이렉트:", oauthUrl);
           window.location.href = oauthUrl;
         } catch (error) {

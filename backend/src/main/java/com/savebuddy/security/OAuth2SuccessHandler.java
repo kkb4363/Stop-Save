@@ -15,7 +15,7 @@ import java.io.IOException;
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Value("${OAUTH_URL_FRONT_DEV}")
+    @Value("${OAUTH_URL_FRONT_BUILD}")
     private String frontendUrl;
 
     @Autowired

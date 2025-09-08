@@ -1,4 +1,4 @@
-import { API_BASE_URL_DEV } from "../constants/api";
+import { API_BASE_URL_BUILD } from "../constants/api";
 import { apiClient } from "../utils/apiClient";
 import type {
   CategoryStats,
@@ -7,7 +7,7 @@ import type {
   ExpenseRecord,
 } from "../types/user";
 
-const API_BASE_URL = `${API_BASE_URL_DEV}/api/expense`;
+const API_BASE_URL = `${API_BASE_URL_BUILD}/api/expense`;
 
 class ExpenseRecordService {
   // 소비 기록 등록
