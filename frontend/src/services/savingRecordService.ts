@@ -1,4 +1,4 @@
-import { API_BASE_URL_BUILD } from "../constants/api";
+import { API_BASE_URL_BUILD, API_BASE_URL_DEV } from "../constants/api";
 import { apiClient } from "../utils/apiClient";
 import type {
   SavingRecord,
@@ -7,7 +7,7 @@ import type {
   RecordInfo,
 } from "../types/user";
 
-const API_BASE_URL = `${API_BASE_URL_BUILD}/api/savings`;
+const API_BASE_URL = `${API_BASE_URL_DEV}/api/savings`;
 
 class SavingRecordService {
   // 절약 기록 등록
