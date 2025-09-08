@@ -162,11 +162,11 @@ export default function StatsPage() {
         </div>
       </div>
 
-      {/* 월별 절약 vs 소비 통합 차트 */}
+      {/* 절약 vs 소비 통합 차트 */}
       <div className="card p-4">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="font-semibold text-gray-900">월별 절약 vs 소비</h3>
-          <select
+          <h3 className="font-semibold text-gray-900">절약 vs 소비</h3>
+          {/* <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
             className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -176,7 +176,7 @@ export default function StatsPage() {
                 {month.label}
               </option>
             ))}
-          </select>
+          </select> */}
         </div>
 
         {/* 원형 차트와 범례 */}
