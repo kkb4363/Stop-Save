@@ -14,7 +14,6 @@ export default function ListPage() {
     records: expenseRecords,
     fetchAllRecords: fetchAllExpenseRecords,
     deleteRecord: deleteExpenseRecord,
-    isLoading: isExpenseLoading,
   } = useExpenseRecordStore();
 
   // 필터 상태 제거

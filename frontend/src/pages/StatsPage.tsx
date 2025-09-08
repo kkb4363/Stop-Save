@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useSavingRecordStore } from "../store/useSavingRecordStore";
 import { useExpenseRecordStore } from "../store/useExpenseRecordStore";
@@ -20,10 +20,6 @@ export default function StatsPage() {
     fetchAllRecords: fetchAllExpenseRecords,
     fetchWeekRecords: fetchExpenseWeekRecords,
   } = useExpenseRecordStore();
-
-  // 월 선택 상태
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     if (user?.id) {
@@ -111,22 +107,6 @@ export default function StatsPage() {
     totalAmount > 0 ? (savingsAmount / totalAmount) * 100 : 0;
   const expensePercentage =
     totalAmount > 0 ? (expenseAmount / totalAmount) * 100 : 0;
-
-  // 월 선택 옵션
-  const months = [
-    { value: 1, label: "1월" },
-    { value: 2, label: "2월" },
-    { value: 3, label: "3월" },
-    { value: 4, label: "4월" },
-    { value: 5, label: "5월" },
-    { value: 6, label: "6월" },
-    { value: 7, label: "7월" },
-    { value: 8, label: "8월" },
-    { value: 9, label: "9월" },
-    { value: 10, label: "10월" },
-    { value: 11, label: "11월" },
-    { value: 12, label: "12월" },
-  ];
 
   return (
     <div className="space-y-6 pt-6">

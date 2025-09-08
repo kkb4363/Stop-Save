@@ -10,7 +10,6 @@ export default function HomePage() {
 
   const {
     todayRecords,
-    monthRecords,
     latestRecords,
     fetchTodayRecords,
     fetchMonthRecords,
@@ -19,7 +18,6 @@ export default function HomePage() {
 
   const {
     todayRecords: expenseTodayRecords,
-    monthRecords: expenseMonthRecords,
     latestRecords: expenseLatestRecords,
     fetchTodayRecords: fetchExpenseTodayRecords,
     fetchMonthRecords: fetchExpenseMonthRecords,
@@ -31,20 +29,16 @@ export default function HomePage() {
       console.log("🏠 HomePage 데이터 새로고침 시작");
       // 절약 데이터
       fetchTodayRecords();
-      fetchMonthRecords();
       fetchLatestRecords();
       // 소비 데이터
       fetchExpenseTodayRecords();
-      fetchExpenseMonthRecords();
       fetchExpenseLatestRecords();
     }
   }, [
     user?.id,
     fetchTodayRecords,
-    fetchMonthRecords,
     fetchLatestRecords,
     fetchExpenseTodayRecords,
-    fetchExpenseMonthRecords,
     fetchExpenseLatestRecords,
   ]);
 
@@ -80,12 +74,6 @@ export default function HomePage() {
   const success = state?.success;
   const successType = state?.type; // 'expense' 또는 undefined (절약)
   const [isSuccess, setIsSuccess] = useState(false);
-
-  // 사용자 레벨과 경험치
-  const level = user?.level || 1;
-  const experience = user?.experience || 0;
-  const nextLevelXP = Math.max(0, level * 100 - experience);
-  const progressPercent = (experience / (level * 100)) * 100;
 
   useEffect(() => {
     if (success) {
