@@ -5,6 +5,7 @@ import App from "./App.tsx";
 
 import HomePage from "./pages/HomePage.tsx";
 import RecordPage from "./pages/RecordPage.tsx";
+import ExpensePage from "./pages/ExpensePage.tsx";
 import StatsPage from "./pages/StatsPage.tsx";
 import ListPage from "./pages/ListPage.tsx";
 import ChallengesPage from "./pages/ChallengesPage.tsx";
@@ -33,6 +34,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <RecordPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "expense",
+        element: (
+          <ProtectedRoute>
+            <ExpensePage />
           </ProtectedRoute>
         ),
       },
