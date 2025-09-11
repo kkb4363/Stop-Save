@@ -50,6 +50,7 @@ function App() {
 
   return (
     <div className="min-h-full bg-gray-50">
+      <MobileDebugger />
       <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
         <div className="container-app">
           <div className="flex h-16 items-center justify-between">
