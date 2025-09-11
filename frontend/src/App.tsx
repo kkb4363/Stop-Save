@@ -8,7 +8,7 @@ import {
 import { useEffect } from "react";
 import { useAuthStore } from "./store/useAuthStore";
 import Logo from "./assets/logo";
-// import { MobileDebugger } from "./components/MobileDebugger";
+import { MobileDebugger } from "./components/MobileDebugger";
 
 function App() {
   const navigate = useNavigate();
